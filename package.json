@@ -1,0 +1,14 @@
+{
+  "name": "zephyr-scanner",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Is your store agent-ready? Commerce-focused agent readiness scanner by Weaverse.",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:api": "pnpm --filter @zephyr/api dev",
+    "dev:web": "pnpm --filter @zephyr/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
