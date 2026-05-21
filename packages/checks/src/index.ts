@@ -5,6 +5,10 @@ import { llmsTxtCheck } from "./llms-txt.js";
 import { productJsonLdCheck } from "./product-jsonld.js";
 import { productVariantsCheck } from "./product-variants.js";
 import { ogTwitterCheck } from "./og-twitter.js";
+import { cartPermalinkCheck } from "./cart-permalink.js";
+import { checkoutHandoffCheck } from "./checkout-handoff.js";
+import { hreflangCheck } from "./hreflang.js";
+import { markdownNegoCheck } from "./markdown-nego.js";
 import type { Check, CheckContext, CheckResult } from "./types.js";
 
 export const allChecks: Check[] = [
@@ -14,6 +18,10 @@ export const allChecks: Check[] = [
   productJsonLdCheck,
   productVariantsCheck,
   ogTwitterCheck,
+  cartPermalinkCheck,
+  checkoutHandoffCheck,
+  hreflangCheck,
+  markdownNegoCheck,
 ];
 
 export async function runCheck(check: Check, ctx: CheckContext): Promise<CheckResult> {

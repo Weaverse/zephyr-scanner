@@ -40,7 +40,7 @@ describe("GET /scan", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns score + meta with limitedCoverage true while <10 checks are live", async () => {
+  it("returns score + meta consistent with the live check count", async () => {
     const res = await app.request("/scan?url=https://example.com");
     expect(res.status).toBe(200);
     const body = (await res.json()) as {
@@ -57,8 +57,12 @@ describe("GET /scan", () => {
     expect(body.meta.apiVersion).toBe("0.1.0");
     expect(body.meta.checksTotal).toBe(15);
     expect(body.meta.checksCovered).toBe(body.results.length);
-    expect(body.meta.limitedCoverage).toBe(true);
-    expect(body.meta.disclaimer).toMatch(/early development/);
+    expect(body.meta.limitedCoverage).toBe(body.meta.checksCovered < 10);
+    if (body.meta.limitedCoverage) {
+      expect(body.meta.disclaimer).toMatch(/early development/);
+    } else {
+      expect(body.meta.disclaimer).toBeUndefined();
+    }
     expect(typeof body.score.overall).toBe("number");
     expect(["A", "B", "C", "D", "F"]).toContain(body.score.grade);
   });
