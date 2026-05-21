@@ -1,56 +1,72 @@
 # MCP — Protocol Brief
 
-> **Status:** 🟢 v0 draft — populated from SEP-2127 (Server Card Working Group, charter
-> dated 2026-03-26). Needs Roxie review.
-> **Confidence:** medium. The Server Card spec is **draft** (target: end-March 2026,
-> ref implementations end-April). Field names and the well-known path may still shift.
+> **Status:** 🟢 v1 — verified live against `developers.cloudflare.com` on 2026-05-21.
+> **Confidence:** high. SEP-2127 now ships a versioned schema URL
+> (`/schemas/v1/server-card.schema.json`) and Cloudflare is publishing
+> server cards in production. Update if the schema flips to a different
+> path before formal SEP merge.
 
 ## What is it?
 
-The Model Context Protocol (MCP) is the open standard that lets AI applications connect to
-external tools and data sources. For commerce, a store can host an MCP server (e.g. Shopify's
-Cart/Checkout/Order MCPs) and advertise its endpoint + capabilities via a
-**Server Card** — a small JSON document at a well-known URL.
+The Model Context Protocol (MCP) is the open standard that lets AI applications
+connect to external tools and data sources. For commerce, a host can publish a
+**Server Card** at a well-known URL describing the MCP server's identity,
+transport endpoints, and (optionally) declarative capabilities. Spec evolution
+lives at SEP-2127.
 
 ## What does Zephyr check?
 
-- **Discovery URL:** `https://{origin}/.well-known/mcp/server-card.json` (the path proposed
-  in SEP-2127). We also accept `/.well-known/mcp-server-card.json` as a fallback while the
-  spec stabilizes.
+- **Discovery URL:** `https://{origin}/.well-known/mcp/server-card.json` (primary,
+  matches what Cloudflare ships). We also accept the older alias
+  `/.well-known/mcp-server-card.json` while the spec stabilises.
 - **Required headers:** Response `Content-Type: application/json`.
-- **Valid response shape (per SEP-2127 minimal card):**
+- **Valid response shape (canonical, live from Cloudflare):**
+
   ```json
   {
-    "name": "com.scoutshop.commerce",
-    "title": "Scoutshop Commerce",
-    "description": "Search, cart, and checkout for Scoutshop.",
-    "websiteUrl": "https://scoutshop.com",
-    "version": "1.0.0",
+    "$schema": "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+    "name": "com.cloudflare/mcp",
+    "version": "0.1.0+1.0.0",
+    "title": "Cloudflare MCP Servers",
+    "description": "MCP servers for Cloudflare …",
+    "websiteUrl": "https://developers.cloudflare.com/agents/",
+    "repository": {
+      "url": "https://github.com/cloudflare/mcp-server-cloudflare",
+      "source": "github"
+    },
     "remotes": [
-      { "type": "http", "url": "https://scoutshop.com/api/mcp" }
-    ],
-    "capabilities": { "tools": true, "resources": false, "prompts": false }
+      { "url": "https://mcp.cloudflare.com/mcp", "type": "streamable-http" }
+    ]
   }
   ```
+
+- Live cards routinely **omit** the optional `capabilities` / `tools` /
+  `prompts` / `resources` blocks — clients negotiate those over the MCP
+  transport itself, so we don't penalise cards that elide them.
 
 ## Pass / fail criteria
 
 | Score | Condition |
 |---|---|
-| 100 | Server card fetched AND has `name` + `remotes[]` with at least one entry + `capabilities` |
-| 80  | Reachable AND has `name` + `remotes[]`, but `capabilities` missing |
-| 50  | Reachable but missing one of name/remotes |
-| 0   | Endpoint not found / unreachable / not JSON |
+| 100 | `name` + at least one `remotes[].url` + `version` + `title` |
+| 90  | `name` + remotes + (`version` or `title`) |
+| 80  | `name` + remotes only |
+| 50  | `name` or remotes alone |
+| 0   | endpoint absent OR wrong content-type OR invalid JSON |
 
 ## Implementation notes
 
-- Some sites may emit `application/json; charset=utf-8`; substring-match `application/json`.
-- Cap fetch size at 100KB.
-- Don't follow more than one redirect; the well-known URL should resolve directly.
+- Cap fetch at 100KB.
+- Reject responses without `Content-Type: application/json` — a 200 HTML
+  catch-all should not be mistaken for a server card.
+- Try the primary path first; only fall back to `mcp-server-card.json` if
+  the primary returns a non-JSON error.
 
 ## References
 
-- MCP overview: https://modelcontextprotocol.io
-- Server Card WG charter: https://modelcontextprotocol.io/community/server-card/charter
-- SEP-2127 draft: https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2127
-- Spec evolves — re-check when SEP-2127 lands.
+- Live example: <https://developers.cloudflare.com/.well-known/mcp/server-card.json>
+- MCP overview: <https://modelcontextprotocol.io>
+- Public registry: <https://registry.modelcontextprotocol.io/v0/servers>
+- Server Card WG charter: <https://modelcontextprotocol.io/community/server-card/charter>
+- SEP-2127 draft (open, unmerged as of 2026-05-21):
+  <https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2127>

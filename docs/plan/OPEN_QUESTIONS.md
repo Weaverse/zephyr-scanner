@@ -57,3 +57,23 @@ MPP informational only.
 **Proposed answer:** Roxie reviews each brief, corrects field names / well-known URLs
 where the canonical spec differs, and updates the corresponding check + tests.
 **Decided by:** Roxie.
+
+### 2026-05-21 — Spec review pass (closes the above for UCP, MCP, x402; ACP + WebMCP open)
+**Context:** Verified each brief against canonical sources + live implementations
+where available.
+- **UCP** ✅ confirmed against `allbirds.com` + `gymshark.com`; brief bumped to v1 high confidence.
+- **MCP card** ✅ verified live against `developers.cloudflare.com`; SEP-2127 now
+  ships `/schemas/v1/server-card.schema.json` (versioned, not draft path);
+  scoring refined to reward `version` + `title` instead of `capabilities`.
+- **ACP** 🟡 OpenAPI confirms `API-Version` header required; `redirect: "follow"`
+  fix prevents false positives from canonical-host 301s. **Open:** no public
+  ACP merchant found — Stripe-routed integrations don't expose
+  `/checkout_sessions` on the brand origin.
+- **WebMCP** 🟡 confirmed `navigator.modelContext.registerTool` JS surface from
+  the W3C explainer. **Open:** no live sites verified; markers `WebMCP-Available`
+  header + `<meta name=webmcp>` are Zephyr's own conventions, may need revision
+  when the WG codifies standards.
+- **x402** ✅ already high confidence; no change.
+- **MPP** ℹ️ informational only; no separate check ships.
+**Decided by:** Echo (this pass). Outstanding: Roxie to confirm ACP / WebMCP
+conventions as adoption picks up.

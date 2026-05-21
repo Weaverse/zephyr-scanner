@@ -15,16 +15,10 @@ export type RouteMap = Record<string, RouteValue>;
 const HERE = dirname(fileURLToPath(import.meta.url));
 
 export function mockFetch(routes: RouteMap): typeof fetch {
-  return (async (input: RequestInfo | URL) => {
-    const url = typeof input === "string" ? input : input.toString();
+  const dispatch = (url: string): Response => {
     const parsed = new URL(url);
-    const path = parsed.pathname;
-
     const match =
-      routes[url] ??
-      routes[path] ??
-      routes[`${parsed.origin}${path}`];
-
+      routes[url] ?? routes[parsed.pathname] ?? routes[`${parsed.origin}${parsed.pathname}`];
     if (!match) {
       return new Response("not found", { status: 404 });
     }
@@ -33,6 +27,27 @@ export function mockFetch(routes: RouteMap): typeof fetch {
       status: r.status ?? 200,
       headers: r.headers ?? { "content-type": "text/plain" },
     });
+  };
+
+  return (async (input: RequestInfo | URL, init?: RequestInit) => {
+    let currentUrl = typeof input === "string" ? input : input.toString();
+    const redirectMode = init?.redirect ?? "follow";
+
+    // Mirror real fetch's redirect handling so production and tests can't
+    // diverge silently — production follows 30x by default; a mock that
+    // returns the 30x verbatim would let checks that depend on the terminal
+    // status pass in tests and false-positive live (e.g. ACP's 301 to a 404).
+    for (let hop = 0; hop < 5; hop++) {
+      const res = dispatch(currentUrl);
+      const isRedirect = res.status >= 300 && res.status < 400;
+      if (!isRedirect || redirectMode !== "follow") {
+        return res;
+      }
+      const location = res.headers.get("location");
+      if (!location) return res;
+      currentUrl = new URL(location, currentUrl).toString();
+    }
+    return new Response("too many redirects", { status: 508 });
   }) as typeof fetch;
 }
 

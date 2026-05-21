@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+  "name": "com.example/mcp",
+  "version": "0.1.0+1.0.0",
+  "title": "Example MCP Servers",
+  "description": "Example MCP server card matching the shape Cloudflare ships on developers.cloudflare.com.",
+  "websiteUrl": "https://example.com",
+  "repository": {
+    "url": "https://github.com/example/mcp-server",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "url": "https://mcp.example.com/mcp",
+      "type": "streamable-http"
+    }
+  ]
+}

@@ -11,9 +11,12 @@ export const acpMarkersCheck: Check = {
   async run(ctx) {
     const checkoutUrl = new URL("/checkout_sessions", ctx.origin).toString();
 
+    // Follow redirects: a 301 to the canonical hostname is universal Shopify
+    // behaviour and does NOT mean /checkout_sessions exists at the destination.
+    // We need the terminal status to know whether the route is actually wired.
     const [homeRes, sessionsRes] = await Promise.all([
       ctx.fetch(ctx.origin).catch(() => null),
-      ctx.fetch(checkoutUrl, { redirect: "manual" }).catch(() => null),
+      ctx.fetch(checkoutUrl, { redirect: "follow" }).catch(() => null),
     ]);
 
     let hasLink = false;

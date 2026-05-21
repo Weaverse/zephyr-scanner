@@ -15,10 +15,28 @@ describe("mcp-card check", () => {
       }),
     );
     expect(r.score).toBe(100);
-    expect(r.evidence).toMatchObject({ hasCapabilities: true });
+    expect(r.evidence).toMatchObject({ hasVersion: true, hasTitle: true });
   });
 
-  it("scores 80 when card has name + remotes but no capabilities", async () => {
+  it("scores 100 on a real-world Cloudflare-shaped card (name + remotes + version + title, no capabilities)", async () => {
+    const r = await runCheck(
+      mcpCardCheck,
+      ctxFor({
+        "/.well-known/mcp/server-card.json": {
+          body: fixture("mcp-card", "card-cloudflare-shape.json"),
+          headers: { "content-type": "application/json" },
+        },
+      }),
+    );
+    expect(r.score).toBe(100);
+    expect(r.evidence).toMatchObject({
+      hasVersion: true,
+      hasTitle: true,
+      hasSchema: true,
+    });
+  });
+
+  it("scores 80 when card has name + remotes but missing version and title", async () => {
     const r = await runCheck(
       mcpCardCheck,
       ctxFor({
