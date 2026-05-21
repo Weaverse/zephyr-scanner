@@ -1,32 +1,36 @@
 # MPP — Protocol Brief
 
-> **Status:** 🟡 TODO — Roxie to populate before Day 5 implementation.
+> **Status:** 🟡 informational — MPP is **Machine Payments Protocol** (Tempo + Stripe),
+> not "Merchant Payment Protocol" as originally listed in PLAN.md. The two domains overlap
+> with x402 (the dedicated commerce check is #7 `x402-headers`). Treat MPP coverage as
+> a side-effect of x402 detection for now.
+> **Confidence:** low — mpp.dev is primarily SDK/implementation docs; no public discovery
+> spec exposed yet.
 
 ## What is it?
 
-TODO — 2-3 sentence summary, link to canonical spec site.
+The Machine Payments Protocol (MPP), co-developed by Tempo and Stripe, defines payment flows
+between machines (agents, services, infrastructure). It overlaps with x402 in motivation
+but targets a broader machine-to-machine surface, not just HTTP 402. SDKs exist in
+TypeScript, Python, Rust, Go, and Ruby; no public well-known endpoint is currently codified
+for merchant advertising.
 
 ## What does Zephyr check?
 
-- **Discovery URL:** `TODO` (e.g. `/.well-known/mpp`)
-- **Required headers:** TODO
-- **Valid response shape:** TODO (paste minimal JSON example)
+**Nothing as a standalone check yet.** PLAN.md originally allocated check #7 to "x402 payment
+headers" and we keep that mapping. If/when MPP publishes a merchant-facing discovery URL,
+add a dedicated check and re-allocate.
+
+Tentative signals (not yet implemented):
+- `<link rel="machine-payments">` in homepage head
+- `/.well-known/mpp` JSON manifest
 
 ## Pass / fail criteria
 
-| Score | Condition |
-|---|---|
-| 100 | TODO — full compliance |
-| 80  | TODO — present, missing optional fields |
-| 50  | TODO — present but malformed |
-| 0   | Endpoint not found / unreachable |
-
-## Implementation notes
-
-TODO — anything Echo needs to know to write the check.
+N/A — no check ships against this protocol in v1. x402 (check #7) covers the closest
+overlapping surface.
 
 ## References
 
-- Spec: TODO (canonical URL)
-- Reference impl: TODO
-- Related Shopify docs: TODO
+- Site: https://mpp.dev
+- Co-developers: Tempo, Stripe (mentioned in mpp.dev docs)
