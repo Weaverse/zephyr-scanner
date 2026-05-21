@@ -16,22 +16,31 @@ SCANNER_VERSION = "0.1.0"
 enabled = true
 
 # ─── Storage bindings ────────────────────────────────────────────────
-# Boss: run the wrangler create commands in docs/deployment.md, then replace
-# every TODO_FILL_IN with the ID emitted by wrangler. Local `wrangler dev`
-# uses its built-in emulators when these IDs are absent — no Cloudflare hits.
-
-[[kv_namespaces]]
-binding = "SCANS"
-id = "TODO_FILL_IN_SCANS_KV_ID"
-preview_id = "TODO_FILL_IN_SCANS_KV_PREVIEW_ID"
-
-[[r2_buckets]]
-binding = "REPORTS"
-bucket_name = "zephyr-reports"
-preview_bucket_name = "zephyr-reports-preview"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "zephyr"
-database_id = "TODO_FILL_IN_D1_ID"
-migrations_dir = "migrations"
+# Bindings are commented out so the first git-driven deploy succeeds with
+# storage as a no-op. The scanner works fine without them — only KV cache,
+# R2 archive, badge endpoint, and leaderboard need them.
+#
+# To enable storage:
+#   1.  wrangler kv:namespace create SCANS
+#       wrangler kv:namespace create SCANS --preview
+#       wrangler r2 bucket create zephyr-reports
+#       wrangler d1 create zephyr
+#       wrangler d1 execute zephyr --file=./apps/api/migrations/0001_init.sql --remote
+#   2.  Paste the returned IDs into the blocks below.
+#   3.  Uncomment, commit, push → next deploy picks them up.
+#
+# [[kv_namespaces]]
+# binding = "SCANS"
+# id = "PASTE_KV_NAMESPACE_ID_HERE"
+# preview_id = "PASTE_KV_PREVIEW_ID_HERE"
+#
+# [[r2_buckets]]
+# binding = "REPORTS"
+# bucket_name = "zephyr-reports"
+# preview_bucket_name = "zephyr-reports-preview"
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "zephyr"
+# database_id = "PASTE_D1_DATABASE_ID_HERE"
+# migrations_dir = "migrations"
