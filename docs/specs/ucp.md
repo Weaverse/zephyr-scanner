@@ -1,59 +1,83 @@
 # UCP — Protocol Brief
 
-> **Status:** 🟢 v0 draft — populated from public research 2026-05-21. Needs Roxie review.
-> **Confidence:** medium. UCP's canonical site (ucp.dev) was unreachable during research;
-> shape inferred from a third-party Shopify-UCP implementation
-> (github.com/tahmidbintaslim/shopify-ucp) and Shopify agent docs that describe
-> "Profiles hosted at a well-known URL." Update once Shopify publishes the canonical spec.
+> **Status:** 🟢 v1 — confirmed against a real Shopify store (allbirds.com) on 2026-05-21.
+> **Confidence:** high. Profile shape verified live; field names captured from the
+> canonical Shopify-hosted profile. Update if/when Shopify publishes a formal spec
+> that differs from this.
 
 ## What is it?
 
-The Universal Commerce Protocol (UCP) is an emerging open standard that lets AI agents
-discover and transact with online stores via a single declarative profile. Backed by Shopify
-in its agentic-commerce initiative (`shopify.dev/docs/agents`), it advertises which MCP
-servers, tools, and checkout endpoints a store exposes — so an agent can complete a purchase
-without bespoke per-store integration.
+The Universal Commerce Protocol (UCP) is the discovery layer for agentic commerce: a
+JSON profile every store exposes describing which protocols, MCP endpoints, and
+capabilities it supports. Shopify ships it for every store at `/.well-known/ucp`.
 
 ## What does Zephyr check?
 
-- **Discovery:** A `<link rel="agent-profile" href="…">` tag in the store homepage `<head>`,
-  pointing at the JSON profile. As a fallback we probe `/.well-known/ucp` directly (the
-  conventional path used by current third-party implementations).
+- **Discovery:** Optional `<link rel="agent-profile" href="…">` tag in the homepage
+  `<head>`; otherwise probe `/.well-known/ucp` directly (Shopify default).
 - **Required headers:** Response `Content-Type: application/json`.
-- **Valid response shape:**
+- **Valid response shape (Shopify canonical, live as of 2026-04-08):**
+
   ```json
   {
-    "ucp_version": "1.0",
-    "store": { "name": "scoutshop", "domain": "scoutshop.com" },
-    "capabilities": [
-      {
-        "type": "discovery",
-        "description": "Search and browse products",
-        "mcp_endpoint": "https://example.com/api/mcp/scoutshop"
+    "ucp": {
+      "version": "2026-04-08",
+      "supported_versions": {
+        "2026-04-08": "https://example.myshopify.com/.well-known/ucp/2026-04-08",
+        "2026-01-23": "https://example.myshopify.com/.well-known/ucp/2026-01-23"
+      },
+      "services": {
+        "dev.ucp.shopping": [
+          {
+            "version": "2026-04-08",
+            "transport": "mcp",
+            "endpoint": "https://example.myshopify.com/api/ucp/mcp",
+            "spec": "https://ucp.dev/2026-04-08/specification/overview/",
+            "schema": "https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json"
+          },
+          {
+            "version": "2026-04-08",
+            "transport": "embedded"
+          }
+        ]
+      },
+      "capabilities": {
+        "dev.ucp.shopping.checkout":    [ { "version": "2026-04-08" } ],
+        "dev.ucp.shopping.fulfillment": [ { /* ... */ } ],
+        "dev.ucp.shopping.discount":    [ { /* ... */ } ]
       }
-    ],
-    "tools": [ /* JSON Schema-shaped tool descriptions */ ]
+    }
   }
   ```
+
+- **Alternate flat shape** (3rd-party gateways like
+  github.com/tahmidbintaslim/shopify-ucp): `{ ucp_version, store, capabilities: [{ mcp_endpoint }] }`.
+  Zephyr accepts either shape.
 
 ## Pass / fail criteria
 
 | Score | Condition |
 |---|---|
-| 100 | `<link rel="agent-profile">` found AND profile fetched AND valid `ucp_version` + at least one capability with an `mcp_endpoint` |
-| 80  | Profile reachable at `/.well-known/ucp` (no `<link>` tag) AND valid shape |
-| 50  | Profile reachable but `ucp_version` missing OR no capabilities |
-| 0   | Neither the link tag nor the well-known endpoint resolves |
+| 100 | `<link rel="agent-profile">` AND profile fetched AND `ucp.version` AND a service with `transport="mcp"` + `endpoint` |
+| 90  | well-known fallback AND `ucp.version` AND mcp endpoint |
+| 70  | reachable + version, but no mcp endpoint |
+| 50  | reachable but missing version + no mcp endpoint |
+| 0   | endpoint absent OR JSON didn't match either known shape |
 
 ## Implementation notes
 
-- Fetch the homepage once and reuse the HTML for the `<link rel="agent-profile">` lookup
-  (re-uses the `og-twitter` / `hreflang` HTML).
-- Honor relative `href` values by resolving against the store origin.
-- Cap profile fetch at 200KB; reject larger payloads as suspicious.
+- Cap profile fetch at 200KB.
+- Follow Shopify's canonical-host redirect (`allbirds.com` → `www.allbirds.com` →
+  `/.well-known/ucp`) — `fetch` follows 3xx transparently.
+- MCP discovery: the `services.dev.ucp.shopping[]` entry with `transport="mcp"` carries
+  the MCP server URL. This is the modern alternative to
+  `/.well-known/mcp/server-card.json` — most live Shopify stores have UCP but no
+  separate MCP server card. A future revision of the `mcp-card` check should
+  cross-reference the UCP profile.
 
 ## References
 
-- Shopify agentic-commerce overview: https://shopify.dev/docs/agents
-- Third-party reference implementation: https://github.com/tahmidbintaslim/shopify-ucp
-- Canonical spec (TODO once ucp.dev is publishable): https://ucp.dev
+- Live example: https://allbirds.com/.well-known/ucp (works on any Shopify store)
+- Shopify agentic-commerce docs: https://shopify.dev/docs/agents
+- Spec landing (when reachable): https://ucp.dev
+- 3rd-party reference impl (flat shape): https://github.com/tahmidbintaslim/shopify-ucp

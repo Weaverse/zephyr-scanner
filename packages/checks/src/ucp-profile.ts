@@ -4,17 +4,78 @@ import { findLinkByRel, resolveHref } from "./util/links.js";
 const MAX_PROFILE_BYTES = 200_000;
 const WELL_KNOWN_PATH = "/.well-known/ucp";
 
-interface UcpProfile {
+// UCP profiles in the wild have two shapes we recognize:
+//   1. Shopify "real" shape   { ucp: { version, supported_versions, services, capabilities } }
+//      — services entries with transport="mcp" carry the MCP endpoint URL.
+//   2. Third-party flat shape { ucp_version, store, capabilities: [{ mcp_endpoint }], tools }
+//      — observed in early non-Shopify UCP gateway implementations.
+// We accept either.
+interface UcpProfileRaw {
+  // Shopify nested shape
+  ucp?: {
+    version?: unknown;
+    supported_versions?: Record<string, unknown>;
+    services?: Record<string, Array<{ transport?: unknown; endpoint?: unknown }>>;
+    capabilities?: Record<string, unknown>;
+  };
+  // Flat (3rd-party) shape
   ucp_version?: unknown;
-  store?: unknown;
-  capabilities?: Array<{ mcp_endpoint?: unknown; type?: unknown }>;
-  tools?: unknown;
+  capabilities?: Array<{ mcp_endpoint?: unknown }>;
+}
+
+interface ProfileSummary {
+  version?: string;
+  hasMcpEndpoint: boolean;
+  capabilityCount: number;
+  shape: "shopify" | "flat" | "unknown";
+}
+
+function summarize(profile: UcpProfileRaw): ProfileSummary {
+  if (profile.ucp && typeof profile.ucp === "object") {
+    const services = profile.ucp.services ?? {};
+    let capabilityCount = 0;
+    let hasMcpEndpoint = false;
+    for (const entries of Object.values(services)) {
+      if (Array.isArray(entries)) {
+        capabilityCount += entries.length;
+        if (
+          entries.some(
+            (e) => e?.transport === "mcp" && typeof e?.endpoint === "string",
+          )
+        ) {
+          hasMcpEndpoint = true;
+        }
+      }
+    }
+    if (profile.ucp.capabilities && typeof profile.ucp.capabilities === "object") {
+      capabilityCount += Object.keys(profile.ucp.capabilities).length;
+    }
+    return {
+      version:
+        typeof profile.ucp.version === "string" ? profile.ucp.version : undefined,
+      hasMcpEndpoint,
+      capabilityCount,
+      shape: "shopify",
+    };
+  }
+
+  if (typeof profile.ucp_version === "string" || Array.isArray(profile.capabilities)) {
+    const caps = Array.isArray(profile.capabilities) ? profile.capabilities : [];
+    return {
+      version: typeof profile.ucp_version === "string" ? profile.ucp_version : undefined,
+      hasMcpEndpoint: caps.some((c) => typeof c?.mcp_endpoint === "string"),
+      capabilityCount: caps.length,
+      shape: "flat",
+    };
+  }
+
+  return { hasMcpEndpoint: false, capabilityCount: 0, shape: "unknown" };
 }
 
 async function fetchProfile(
   ctx: CheckContext,
   url: string,
-): Promise<{ profile: UcpProfile; rawBytes: number } | { error: string }> {
+): Promise<{ profile: UcpProfileRaw } | { error: string }> {
   const res = await ctx.fetch(url).catch((e) => ({ error: String(e) }) as const);
   if ("error" in res) return { error: res.error };
   if (!res.ok) return { error: `HTTP ${res.status}` };
@@ -24,7 +85,7 @@ async function fetchProfile(
     return { error: `profile too large (${text.length} bytes)` };
   }
   try {
-    return { profile: JSON.parse(text) as UcpProfile, rawBytes: text.length };
+    return { profile: JSON.parse(text) as UcpProfileRaw };
   } catch {
     return { error: "invalid JSON" };
   }
@@ -58,33 +119,35 @@ export const ucpProfileCheck: Check = {
         lastError = result.error;
         continue;
       }
-      const { profile } = result;
-      const hasVersion = typeof profile.ucp_version === "string";
-      const capabilities = Array.isArray(profile.capabilities) ? profile.capabilities : [];
-      const capabilityWithEndpoint = capabilities.find(
-        (cap) => typeof cap?.mcp_endpoint === "string",
-      );
+
+      const summary = summarize(result.profile);
+      if (summary.shape === "unknown") {
+        // JSON parsed but doesn't look like any UCP shape we recognize.
+        lastError = "JSON did not match a known UCP profile shape";
+        continue;
+      }
 
       let score = 50;
-      if (hasVersion) score += 20;
-      if (capabilityWithEndpoint) score += 20;
+      if (summary.version) score += 20;
+      if (summary.hasMcpEndpoint) score += 20;
       if (c.source === "link") score += 10;
       score = Math.min(score, 100);
 
       return {
         passed: score >= 60,
         score,
-        detail: `UCP profile fetched from ${c.url} (${c.source}). version=${hasVersion}, capabilities=${capabilities.length}.`,
+        detail: `UCP profile fetched from ${c.url} (${c.source}, ${summary.shape} shape). version=${summary.version ?? "missing"}, capabilities=${summary.capabilityCount}, mcp endpoint=${summary.hasMcpEndpoint}.`,
         evidence: {
           source: c.source,
           profileUrl: c.url,
-          ucpVersion: profile.ucp_version,
-          capabilityCount: capabilities.length,
-          hasMcpEndpoint: Boolean(capabilityWithEndpoint),
+          shape: summary.shape,
+          version: summary.version,
+          capabilityCount: summary.capabilityCount,
+          hasMcpEndpoint: summary.hasMcpEndpoint,
         },
         fixHint:
           score < 100
-            ? "Add a <link rel=\"agent-profile\" href=\"/.well-known/ucp\"> tag in your homepage <head> and ensure the profile lists at least one capability with an mcp_endpoint."
+            ? "Add a <link rel=\"agent-profile\" href=\"/.well-known/ucp\"> tag in your homepage <head> and ensure the profile carries a version + at least one service/capability with transport=\"mcp\"."
             : undefined,
       };
     }
@@ -95,7 +158,7 @@ export const ucpProfileCheck: Check = {
       detail: `No UCP profile found. Last error: ${lastError ?? "no candidates resolved"}.`,
       evidence: { lastError, triedLink: Boolean(linkUrl) },
       fixHint:
-        "Publish a UCP profile at /.well-known/ucp and link to it from your homepage with <link rel=\"agent-profile\" href=\"…\">.",
+        "Publish a UCP profile at /.well-known/ucp (Shopify stores get this automatically on Hydrogen/Online Store) and link to it from your homepage.",
     };
   },
 };

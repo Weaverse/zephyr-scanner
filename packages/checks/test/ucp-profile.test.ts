@@ -54,6 +54,24 @@ describe("ucp-profile check", () => {
     expect(r.score).toBe(0);
   });
 
+  it("accepts the Shopify nested {ucp:{version,services}} shape", async () => {
+    const r = await runCheck(
+      ucpProfileCheck,
+      ctxFor({
+        "/": fixture("ucp-profile", "home-no-link.html"),
+        "/.well-known/ucp": {
+          body: fixture("ucp-profile", "profile-shopify.json"),
+          headers: { "content-type": "application/json" },
+        },
+      }),
+    );
+    expect(r.score).toBe(90);
+    expect(r.evidence).toMatchObject({
+      shape: "shopify",
+      hasMcpEndpoint: true,
+    });
+  });
+
   it("scores 0 when /.well-known/ucp returns invalid JSON", async () => {
     const r = await runCheck(
       ucpProfileCheck,

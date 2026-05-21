@@ -47,5 +47,10 @@ export function hasType(node: any, type: string): boolean {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function findProduct(html: string): any | null {
   const flat = flattenGraphs(extractJsonLd(html));
-  return flat.find((n) => hasType(n, "Product")) ?? null;
+  // schema.org has both Product (single SKU) and ProductGroup (a variant family
+  // — Shopify uses this when a product has multiple variants).
+  return (
+    flat.find((n) => hasType(n, "Product") || hasType(n, "ProductGroup")) ??
+    null
+  );
 }

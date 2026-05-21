@@ -62,6 +62,18 @@ describe("product-jsonld check", () => {
     expect(r.score).toBe(0);
   });
 
+  it("recognises Schema.org ProductGroup (used by Shopify for variant families)", async () => {
+    const r = await runCheck(
+      productJsonLdCheck,
+      ctxFor({
+        "/sitemap.xml": sitemap(),
+        "/products/blue-shirt": fixture("product-jsonld", "pdp-product-group.html"),
+      }),
+    );
+    expect(r.score).toBe(100);
+    expect(r.passed).toBe(true);
+  });
+
   it("follows a sitemap index to find product URLs", async () => {
     const r = await runCheck(
       productJsonLdCheck,
