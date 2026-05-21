@@ -5,6 +5,7 @@ import CategoryBars from "../../components/CategoryBars.astro";
 import CheckList from "../../components/CheckList.astro";
 import LimitedCoverageBanner from "../../components/LimitedCoverageBanner.astro";
 import ShareButtons from "../../components/ShareButtons";
+import SubscribeForm from "../../components/SubscribeForm";
 import { API_BASE, fetchScan, type ScanResponse } from "../../lib/api";
 
 export const prerender = false;
@@ -98,6 +99,13 @@ const ogUrl = domain ? `https://zephyr.build/scan/${domain}` : undefined;
           <section class="mb-12">
             <h2 class="text-2xl font-bold text-zephyr-900 mb-6">Check results</h2>
             <CheckList results={data.results} />
+          </section>
+
+          <section class="bg-white border border-zephyr-100 rounded-xl p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-3 text-zephyr-900">
+              Watch this store for changes
+            </h2>
+            <SubscribeForm client:load domain={new URL(data.target).hostname} />
           </section>
 
           <section class="bg-white border border-zephyr-100 rounded-xl p-6 mb-12">

@@ -14,6 +14,7 @@ import {
 } from "./env.js";
 import { renderOgSvg } from "./og.js";
 import { svgToPng } from "./og-png.js";
+import { upsertZephyrContact } from "./marketing.js";
 import {
   cacheKeyForUrl,
   nanoid12,
@@ -48,6 +49,7 @@ app.get("/", (c) =>
       "/og/{domain}.png",
       "/leaderboard",
       "/scan/{id}",
+      "POST /subscribe",
     ],
     docs: "https://github.com/Weaverse/zephyr-scanner",
   }),
@@ -217,6 +219,50 @@ app.get("/og/:filename", async (c) => {
       "cache-control": "public, max-age=86400",
     },
   });
+});
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+app.post("/subscribe", async (c) => {
+  let body: { email?: unknown; domain?: unknown };
+  try {
+    body = (await c.req.json()) as typeof body;
+  } catch {
+    return c.json({ error: "invalid JSON body" }, 400);
+  }
+
+  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const domainRaw = typeof body.domain === "string" ? body.domain.trim() : "";
+  if (!email || !EMAIL_RE.test(email)) {
+    return c.json({ error: "invalid email" }, 400);
+  }
+  if (!domainRaw) {
+    return c.json({ error: "missing domain" }, 400);
+  }
+  let domain: string;
+  try {
+    domain = new URL(
+      domainRaw.startsWith("http") ? domainRaw : `https://${domainRaw}`,
+    ).hostname.toLowerCase();
+  } catch {
+    return c.json({ error: "invalid domain" }, 400);
+  }
+
+  try {
+    await upsertZephyrContact(c.env, {
+      email,
+      shopDomain: domain,
+      event: "zephyr_subscribed",
+      source: "zephyr",
+    });
+  } catch (e) {
+    return c.json(
+      { error: "subscription upstream unavailable", detail: (e as Error).message },
+      502,
+    );
+  }
+
+  return c.json({ ok: true, email, domain });
 });
 
 app.get("/leaderboard", async (c) => {
