@@ -75,21 +75,35 @@ export async function fetchScan(
   url: string,
   opts: { fresh?: boolean } = {},
 ): Promise<ScanResponse | { error: string }> {
-  const params = new URLSearchParams({ url });
-  if (opts.fresh) params.set("fresh", "true");
-  const res = await fetch(`${API_BASE}/scan?${params.toString()}`);
-  return res.json();
+  try {
+    const params = new URLSearchParams({ url });
+    if (opts.fresh) params.set("fresh", "true");
+    const res = await fetch(`${API_BASE}/scan?${params.toString()}`);
+    if (!res.ok) {
+      return { error: `Scanner API returned HTTP ${res.status}.` };
+    }
+    return (await res.json()) as ScanResponse | { error: string };
+  } catch (e) {
+    return { error: `Scanner unreachable: ${(e as Error).message}` };
+  }
 }
 
 export async function fetchLeaderboard(
   opts: { period?: string; category?: string; limit?: number } = {},
 ): Promise<LeaderboardResponse | { error: string }> {
-  const params = new URLSearchParams();
-  if (opts.period) params.set("period", opts.period);
-  if (opts.category) params.set("category", opts.category);
-  if (opts.limit) params.set("limit", String(opts.limit));
-  const res = await fetch(`${API_BASE}/leaderboard?${params.toString()}`);
-  return res.json();
+  try {
+    const params = new URLSearchParams();
+    if (opts.period) params.set("period", opts.period);
+    if (opts.category) params.set("category", opts.category);
+    if (opts.limit) params.set("limit", String(opts.limit));
+    const res = await fetch(`${API_BASE}/leaderboard?${params.toString()}`);
+    if (!res.ok) {
+      return { error: `Leaderboard API returned HTTP ${res.status}.` };
+    }
+    return (await res.json()) as LeaderboardResponse | { error: string };
+  } catch (e) {
+    return { error: `Leaderboard unreachable: ${(e as Error).message}` };
+  }
 }
 
 export function gradeColor(grade: Grade): string {
