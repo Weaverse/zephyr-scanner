@@ -1,9 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const STORAGE_KEY = "zephyr:last-scan";
 
 export default function ScanInput() {
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Hydrate from localStorage on mount. We don't set this as the initial
+  // useState value because that would run server-side (Astro SSR) where
+  // localStorage doesn't exist — and React's hydration would then mismatch.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setValue(saved);
+    } catch {
+      // localStorage may be disabled (private mode, embed in iframe with
+      // partitioned storage, etc) — silently fall back to empty input.
+    }
+  }, []);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,6 +36,11 @@ export default function ScanInput() {
       setError("That doesn't look like a valid URL.");
       return;
     }
+    try {
+      localStorage.setItem(STORAGE_KEY, domain);
+    } catch {
+      // ignore — same caveats as above
+    }
     setLoading(true);
     window.location.href = `/scan/${encodeURIComponent(domain)}`;
   }
@@ -35,6 +55,7 @@ export default function ScanInput() {
           onChange={(e) => setValue(e.target.value)}
           className="flex-1 px-4 py-3 rounded-lg border border-zephyr-200 bg-white text-base focus:outline-none focus:ring-2 focus:ring-zephyr-500 placeholder:text-zephyr-700/40"
           aria-label="Store URL to scan"
+          autoComplete="url"
         />
         <button
           type="submit"
