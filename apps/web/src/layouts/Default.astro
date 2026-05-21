@@ -1,0 +1,68 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Zephyr — Is your store agent-ready?",
+  description = "Free commerce-focused agent readiness scanner. Score your Shopify, Hydrogen, or commerce store against 15 checks for AI-agent readiness.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="bg-zephyr-50 text-zephyr-900 min-h-screen flex flex-col">
+    <header class="border-b border-zephyr-100 bg-white">
+      <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="/" class="font-mono font-bold text-xl text-zephyr-600 lowercase">
+          zephyr
+        </a>
+        <nav class="flex gap-6 text-sm font-medium text-zephyr-700">
+          <a href="/leaderboard" class="hover:text-zephyr-500">Leaderboard</a>
+          <a href="/about" class="hover:text-zephyr-500">About</a>
+          <a
+            href="https://github.com/Weaverse/zephyr-scanner"
+            class="hover:text-zephyr-500"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://weaverse.io"
+            class="hover:text-zephyr-500"
+          >
+            Powered by Weaverse
+          </a>
+        </nav>
+      </div>
+    </header>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="border-t border-zephyr-100 bg-white">
+      <div
+        class="max-w-6xl mx-auto px-6 py-6 text-sm text-zephyr-700 flex justify-between"
+      >
+        <span>MIT licensed · Built by Weaverse</span>
+        <a
+          href="https://github.com/Weaverse/zephyr-scanner"
+          class="hover:text-zephyr-500"
+        >
+          github.com/Weaverse/zephyr-scanner
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>

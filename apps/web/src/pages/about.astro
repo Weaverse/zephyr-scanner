@@ -1,0 +1,60 @@
+---
+import Default from "../layouts/Default.astro";
+---
+
+<Default title="Zephyr — About">
+  <div class="max-w-3xl mx-auto px-6 py-12 prose prose-zephyr">
+    <h1 class="text-3xl font-bold text-zephyr-900 mb-2">About Zephyr</h1>
+    <p class="text-zephyr-700 mb-6">
+      Zephyr is a free, public, commerce-focused agent-readiness scanner. Paste a
+      store URL — get a 0-100 score across 5 categories plus a fix-it action list.
+    </p>
+
+    <h2 class="text-xl font-semibold text-zephyr-900 mt-8 mb-3">What we check</h2>
+    <p class="text-zephyr-700">
+      15 checks across discoverability, content, commerce protocols, product data,
+      and checkout. The full matrix lives in
+      <a
+        class="underline"
+        href="https://github.com/Weaverse/zephyr-scanner/blob/main/docs/CHECKS.md"
+      >
+        docs/CHECKS.md
+      </a>.
+    </p>
+
+    <h2 class="text-xl font-semibold text-zephyr-900 mt-8 mb-3">Protocols covered</h2>
+    <ul class="text-zephyr-700 list-disc pl-6 space-y-1">
+      <li>UCP — Universal Commerce Protocol</li>
+      <li>MCP — Model Context Protocol (server card discovery, SEP-2127)</li>
+      <li>ACP — Agentic Commerce Protocol (Stripe + OpenAI)</li>
+      <li>x402 — HTTP 402 payments (Coinbase)</li>
+      <li>WebMCP — client-side tools for agents (W3C WebML CG)</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold text-zephyr-900 mt-8 mb-3">Who built this</h2>
+    <p class="text-zephyr-700">
+      Zephyr is an open-source project from
+      <a class="underline" href="https://weaverse.io">Weaverse</a>. We build
+      Hydrogen apps and tooling for AI-first commerce.
+    </p>
+
+    <h2 class="text-xl font-semibold text-zephyr-900 mt-8 mb-3">Scanner identity</h2>
+    <p class="text-zephyr-700">
+      Outbound requests carry
+      <code class="font-mono text-sm">
+        User-Agent: ZephyrScanner/0.1 (+https://zephyr.build)
+      </code>. Disallow this UA in your <code>robots.txt</code> to block scans.
+    </p>
+
+    <h2 class="text-xl font-semibold text-zephyr-900 mt-8 mb-3">Contributing</h2>
+    <p class="text-zephyr-700">
+      MIT licensed. Contributions welcome — see
+      <a
+        class="underline"
+        href="https://github.com/Weaverse/zephyr-scanner/blob/main/CONTRIBUTING.md"
+      >
+        CONTRIBUTING.md
+      </a>.
+    </p>
+  </div>
+</Default>

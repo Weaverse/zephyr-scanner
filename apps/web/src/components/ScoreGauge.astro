@@ -1,0 +1,45 @@
+---
+import { gradeColor, type Grade } from "../lib/api";
+
+interface Props {
+  score: number;
+  grade: Grade;
+}
+
+const { score, grade } = Astro.props;
+const radius = 70;
+const circumference = 2 * Math.PI * radius;
+const offset = circumference - (score / 100) * circumference;
+const colorClass = gradeColor(grade);
+---
+
+<div class="flex items-center justify-center">
+  <div class="relative w-56 h-56">
+    <svg width="224" height="224" viewBox="0 0 160 160" class="rotate-[-90deg]">
+      <circle
+        cx="80"
+        cy="80"
+        r={radius}
+        stroke="#e0f2fe"
+        stroke-width="14"
+        fill="none"
+      />
+      <circle
+        cx="80"
+        cy="80"
+        r={radius}
+        stroke="currentColor"
+        stroke-width="14"
+        fill="none"
+        stroke-linecap="round"
+        class={colorClass}
+        stroke-dasharray={circumference}
+        stroke-dashoffset={offset}
+      />
+    </svg>
+    <div class="absolute inset-0 flex flex-col items-center justify-center">
+      <span class={`text-5xl font-bold ${colorClass}`}>{score}</span>
+      <span class={`text-2xl font-mono font-semibold ${colorClass}`}>{grade}</span>
+    </div>
+  </div>
+</div>

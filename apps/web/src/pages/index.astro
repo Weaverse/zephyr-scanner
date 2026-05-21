@@ -1,0 +1,157 @@
+---
+import Default from "../layouts/Default.astro";
+import ScanInput from "../components/ScanInput";
+import { fetchLeaderboard, gradeColor } from "../lib/api";
+
+const board = await fetchLeaderboard({ limit: 5 }).catch(() => null);
+const entries = board && "entries" in board ? board.entries : [];
+
+const categoryCards = [
+  {
+    title: "Discoverability",
+    checks: ["robots.txt with AI bot rules", "sitemap.xml", "hreflang"],
+  },
+  {
+    title: "Content",
+    checks: ["llms.txt manifest", "markdown content negotiation"],
+  },
+  {
+    title: "Commerce",
+    checks: [
+      "UCP profile",
+      "MCP server card",
+      "ACP markers",
+      "x402 headers",
+      "WebMCP opt-in",
+    ],
+  },
+  {
+    title: "Product Data",
+    checks: ["Product JSON-LD", "variants & pricing clarity", "OG / Twitter cards"],
+  },
+  {
+    title: "Checkout",
+    checks: ["cart permalinks", "checkout handoff URL"],
+  },
+];
+---
+
+<Default>
+  <!-- Hero -->
+  <section class="bg-white border-b border-zephyr-100">
+    <div class="max-w-4xl mx-auto px-6 py-20 text-center">
+      <h1 class="text-5xl sm:text-6xl font-bold tracking-tight text-zephyr-900 mb-3">
+        Shopify built the rails.
+      </h1>
+      <p class="text-2xl sm:text-3xl text-zephyr-700 mb-10">
+        Zephyr tells you if your store is on them.
+      </p>
+      <ScanInput client:load />
+      <p class="mt-6 text-sm text-zephyr-700">
+        Free. No signup. Built by
+        <a
+          href="https://weaverse.io"
+          class="underline hover:text-zephyr-500"
+        >
+          Weaverse
+        </a>
+        .
+      </p>
+    </div>
+  </section>
+
+  <!-- What we check -->
+  <section class="max-w-6xl mx-auto px-6 py-16">
+    <h2 class="text-2xl font-bold text-zephyr-900 mb-8">What we check</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {
+        categoryCards.map((c) => (
+          <div class="border border-zephyr-100 rounded-lg p-4 bg-white">
+            <h3 class="font-semibold text-zephyr-900 mb-2">{c.title}</h3>
+            <ul class="text-sm text-zephyr-700 space-y-1">
+              {c.checks.map((check) => (
+                <li>· {check}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Leaderboard preview -->
+  {
+    entries.length > 0 && (
+      <section class="bg-white border-y border-zephyr-100">
+        <div class="max-w-6xl mx-auto px-6 py-12">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-zephyr-900">Top scores</h2>
+            <a
+              href="/leaderboard"
+              class="text-sm text-zephyr-600 hover:text-zephyr-500"
+            >
+              See full leaderboard →
+            </a>
+          </div>
+          <ol class="divide-y divide-zephyr-100">
+            {entries.map((e) => (
+              <li class="flex items-center justify-between py-3">
+                <a
+                  href={`/scan/${e.domain}`}
+                  class="font-mono text-zephyr-700 hover:text-zephyr-500"
+                >
+                  #{e.rank} · {e.domain}
+                </a>
+                <span class={`font-mono font-bold ${gradeColor(e.grade)}`}>
+                  {e.grade} {e.score}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- How it works -->
+  <section class="max-w-6xl mx-auto px-6 py-16">
+    <h2 class="text-2xl font-bold text-zephyr-900 mb-8">How it works</h2>
+    <ol class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <li class="bg-white border border-zephyr-100 rounded-lg p-6">
+        <span class="text-3xl font-mono font-bold text-zephyr-500">01</span>
+        <p class="mt-2 font-medium text-zephyr-900">Paste your URL</p>
+        <p class="text-sm text-zephyr-700">
+          Any commerce store — Shopify, Hydrogen, custom storefront.
+        </p>
+      </li>
+      <li class="bg-white border border-zephyr-100 rounded-lg p-6">
+        <span class="text-3xl font-mono font-bold text-zephyr-500">02</span>
+        <p class="mt-2 font-medium text-zephyr-900">15 checks, 5 categories</p>
+        <p class="text-sm text-zephyr-700">
+          Discoverability, content, commerce protocols, product data, and checkout.
+        </p>
+      </li>
+      <li class="bg-white border border-zephyr-100 rounded-lg p-6">
+        <span class="text-3xl font-mono font-bold text-zephyr-500">03</span>
+        <p class="mt-2 font-medium text-zephyr-900">Get a fix-it list</p>
+        <p class="text-sm text-zephyr-700">
+          Every failing check ships with a remediation hint.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- Developer CTA -->
+  <section class="bg-zephyr-900 text-white">
+    <div class="max-w-4xl mx-auto px-6 py-12 text-center">
+      <h2 class="text-2xl font-bold mb-3">Embed your score</h2>
+      <p class="text-zephyr-100 mb-4">
+        Drop a badge on your site. Open source — fork the scanner on GitHub.
+      </p>
+      <pre class="inline-block text-left text-xs sm:text-sm bg-zephyr-700 rounded p-4 overflow-x-auto font-mono"><code>{`<a href="https://zephyr.build/scan/yourstore.com">
+  <img src="https://zephyr.build/badge/yourstore.com.svg"
+       alt="Agent readiness" />
+</a>`}</code></pre>
+    </div>
+  </section>
+</Default>

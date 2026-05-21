@@ -1,0 +1,126 @@
+---
+import Default from "../../layouts/Default.astro";
+import ScoreGauge from "../../components/ScoreGauge.astro";
+import CategoryBars from "../../components/CategoryBars.astro";
+import CheckList from "../../components/CheckList.astro";
+import LimitedCoverageBanner from "../../components/LimitedCoverageBanner.astro";
+import ShareButtons from "../../components/ShareButtons";
+import { fetchScan, type ScanResponse } from "../../lib/api";
+
+export const prerender = false;
+
+const { domain } = Astro.params;
+const fresh = Astro.url.searchParams.get("fresh") === "true";
+
+let scan: ScanResponse | { error: string } | null = null;
+let errorMessage: string | null = null;
+
+if (!domain) {
+  errorMessage = "Missing domain in URL.";
+} else {
+  scan = await fetchScan(domain, { fresh });
+  if (!scan || "error" in scan) {
+    errorMessage =
+      scan && "error" in scan ? scan.error : "Couldn't reach the scanner API.";
+    scan = null;
+  }
+}
+
+const data = scan as ScanResponse | null;
+const title = domain
+  ? `${domain} — Zephyr scan`
+  : "Zephyr scan";
+---
+
+<Default title={title}>
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    {
+      errorMessage && (
+        <div class="rounded-lg border border-grade-f/30 bg-grade-f/10 text-grade-f px-4 py-3 mb-6">
+          <p>
+            <strong>Scan failed.</strong> {errorMessage}
+          </p>
+          <p class="text-sm mt-2 text-zephyr-700">
+            Make sure the URL exists and is reachable over HTTPS. Try again with
+            <code>?fresh=true</code> to bypass cache.
+          </p>
+        </div>
+      )
+    }
+    {
+      data && (
+        <>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+            <div>
+              <h1 class="text-3xl font-bold text-zephyr-900 break-all">
+                {new URL(data.target).hostname}
+              </h1>
+              <p class="text-sm text-zephyr-700">
+                Scanned {new Date(data.scannedAt).toLocaleString()}
+                {data.meta.cached ? " · served from cache" : ""}
+              </p>
+            </div>
+            <a
+              href={`?fresh=true`}
+              class="self-start sm:self-auto px-4 py-2 rounded-md border border-zephyr-200 bg-white text-sm font-medium hover:bg-zephyr-100"
+            >
+              Re-scan
+            </a>
+          </div>
+
+          {data.meta.limitedCoverage && (
+            <LimitedCoverageBanner
+              checksCovered={data.meta.checksCovered}
+              checksTotal={data.meta.checksTotal}
+            />
+          )}
+
+          <div class="grid lg:grid-cols-[1fr_2fr] gap-8 items-start mb-12">
+            <div class="bg-white border border-zephyr-100 rounded-xl p-6">
+              <ScoreGauge score={data.score.overall} grade={data.score.grade} />
+              <p class="text-center text-sm text-zephyr-700 mt-4">
+                {data.score.passed} of {data.score.total} checks passed
+              </p>
+            </div>
+            <div class="bg-white border border-zephyr-100 rounded-xl p-6">
+              <h2 class="text-lg font-semibold mb-4 text-zephyr-900">
+                Category breakdown
+              </h2>
+              <CategoryBars categories={data.score.categories} />
+            </div>
+          </div>
+
+          <section class="mb-12">
+            <h2 class="text-2xl font-bold text-zephyr-900 mb-6">Check results</h2>
+            <CheckList results={data.results} />
+          </section>
+
+          <section class="bg-white border border-zephyr-100 rounded-xl p-6 mb-12">
+            <h2 class="text-lg font-semibold mb-3 text-zephyr-900">Share this</h2>
+            <ShareButtons
+              client:load
+              domain={new URL(data.target).hostname}
+              score={data.score.overall}
+              grade={data.score.grade}
+            />
+          </section>
+
+          <aside class="rounded-xl bg-zephyr-900 text-white p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 class="font-semibold mb-1">Built on Hydrogen?</h3>
+              <p class="text-sm text-zephyr-100">
+                Get these issues auto-fixed with Weaverse →
+              </p>
+            </div>
+            <a
+              href="https://weaverse.io"
+              class="px-4 py-2 rounded-md bg-white text-zephyr-900 font-medium text-sm hover:bg-zephyr-100"
+            >
+              Explore Weaverse
+            </a>
+          </aside>
+        </>
+      )
+    }
+  </div>
+</Default>

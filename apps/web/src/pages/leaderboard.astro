@@ -1,0 +1,89 @@
+---
+import Default from "../layouts/Default.astro";
+import LeaderboardFilter from "../components/LeaderboardFilter";
+import { fetchLeaderboard, gradeColor } from "../lib/api";
+
+export const prerender = false;
+
+const params = Astro.url.searchParams;
+const category = params.get("category") ?? "";
+const period = params.get("period") ?? "30d";
+
+const board = await fetchLeaderboard({
+  period,
+  category: category || undefined,
+  limit: 50,
+}).catch(() => null);
+const entries = board && "entries" in board ? board.entries : [];
+const errorMessage = !board
+  ? "Leaderboard unavailable."
+  : "error" in board
+    ? board.error
+    : null;
+---
+
+<Default title="Zephyr — Leaderboard">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <h1 class="text-3xl font-bold text-zephyr-900 mb-2">Leaderboard</h1>
+    <p class="text-zephyr-700 mb-6">Highest agent-readiness scores across the network.</p>
+
+    <LeaderboardFilter
+      client:load
+      initialCategory={category}
+      initialPeriod={period}
+    />
+
+    {
+      errorMessage && (
+        <div class="rounded-lg border border-grade-f/30 bg-grade-f/10 text-grade-f px-4 py-3 mb-6">
+          {errorMessage}
+        </div>
+      )
+    }
+
+    {
+      entries.length === 0 && !errorMessage && (
+        <p class="text-zephyr-700 text-sm">
+          No scans recorded yet for this filter. Be the first — scan your store
+          from the <a href="/" class="underline">homepage</a>.
+        </p>
+      )
+    }
+
+    {
+      entries.length > 0 && (
+        <table class="w-full border border-zephyr-100 rounded-lg overflow-hidden bg-white">
+          <thead class="bg-zephyr-50 text-left text-sm text-zephyr-700">
+            <tr>
+              <th class="px-4 py-2 w-16">Rank</th>
+              <th class="px-4 py-2">Domain</th>
+              <th class="px-4 py-2 w-32">Score</th>
+              <th class="px-4 py-2 w-48">Scanned</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm divide-y divide-zephyr-100">
+            {entries.map((e) => (
+              <tr>
+                <td class="px-4 py-3 font-mono text-zephyr-700">#{e.rank}</td>
+                <td class="px-4 py-3">
+                  <a
+                    href={`/scan/${e.domain}`}
+                    class="text-zephyr-700 hover:text-zephyr-500"
+                  >
+                    {e.domain}
+                  </a>
+                </td>
+                <td class={`px-4 py-3 font-mono font-bold ${gradeColor(e.grade)}`}>
+                  {e.grade} {e.score}
+                </td>
+                <td class="px-4 py-3 text-zephyr-700">
+                  {new Date(e.scannedAt).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )
+    }
+  </div>
+</Default>

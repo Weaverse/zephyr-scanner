@@ -1,0 +1,84 @@
+---
+import { CATEGORY_LABELS, type CheckResult } from "../lib/api";
+
+interface Props {
+  results: CheckResult[];
+}
+
+const { results } = Astro.props;
+const grouped = new Map<string, CheckResult[]>();
+for (const r of results) {
+  const list = grouped.get(r.category) ?? [];
+  list.push(r);
+  grouped.set(r.category, list);
+}
+
+function severityLabel(s: CheckResult["severity"]): string {
+  switch (s) {
+    case "critical":
+      return "Critical";
+    case "important":
+      return "Important";
+    case "nice-to-have":
+      return "Nice-to-have";
+  }
+}
+
+function statusClass(r: CheckResult): string {
+  if (r.passed) return "bg-grade-a/10 text-grade-a";
+  if (r.score >= 40) return "bg-grade-c/10 text-grade-c";
+  return "bg-grade-f/10 text-grade-f";
+}
+---
+
+<div class="space-y-8">
+  {
+    [...grouped.entries()].map(([category, items]) => (
+      <section>
+        <h3 class="text-lg font-semibold text-zephyr-900 mb-3">
+          {CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}
+        </h3>
+        <ul class="space-y-2">
+          {items.map((r) => (
+            <li class="border border-zephyr-100 rounded-lg bg-white">
+              <details open={!r.passed}>
+                <summary class="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer select-none">
+                  <span class="flex items-center gap-3">
+                    <span
+                      class={`text-xs font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${statusClass(r)}`}
+                    >
+                      {r.passed ? "Pass" : "Fix"}
+                    </span>
+                    <span class="font-medium text-zephyr-900">{r.name}</span>
+                    <span class="text-xs text-zephyr-700">
+                      {severityLabel(r.severity)}
+                    </span>
+                  </span>
+                  <span class="text-sm font-mono text-zephyr-700">{r.score}/100</span>
+                </summary>
+                <div class="px-4 pb-4 text-sm text-zephyr-900 space-y-3">
+                  <p>{r.detail}</p>
+                  {r.fixHint && (
+                    <p class="border-l-4 border-grade-c pl-3 text-zephyr-700">
+                      <strong class="text-zephyr-900">How to fix:</strong> {r.fixHint}
+                    </p>
+                  )}
+                  {r.evidence && (
+                    <details>
+                      <summary class="cursor-pointer text-zephyr-700 text-xs">
+                        Raw evidence
+                      </summary>
+                      <pre class="mt-2 p-3 rounded bg-zephyr-50 text-xs overflow-x-auto font-mono">
+{JSON.stringify(r.evidence, null, 2)}
+                      </pre>
+                    </details>
+                  )}
+                </div>
+              </details>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>

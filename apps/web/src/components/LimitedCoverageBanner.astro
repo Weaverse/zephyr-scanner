@@ -1,0 +1,14 @@
+---
+interface Props {
+  checksCovered: number;
+  checksTotal: number;
+}
+
+const { checksCovered, checksTotal } = Astro.props;
+---
+
+<div class="rounded-lg border border-grade-c/30 bg-grade-c/10 text-grade-d px-4 py-3 mb-6">
+  <p class="text-sm">
+    <strong>⚠️ Limited coverage.</strong> Scanner is in early development. This score reflects {checksCovered} of {checksTotal} planned checks.
+  </p>
+</div>

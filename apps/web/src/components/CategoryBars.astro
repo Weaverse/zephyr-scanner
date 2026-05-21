@@ -1,0 +1,52 @@
+---
+import { CATEGORY_LABELS, type CategoryScore } from "../lib/api";
+
+interface Props {
+  categories: CategoryScore[];
+}
+
+const { categories } = Astro.props;
+
+const order: CategoryScore["category"][] = [
+  "commerce",
+  "product-data",
+  "checkout",
+  "discoverability",
+  "content",
+];
+
+function barColor(score: number): string {
+  if (score >= 90) return "bg-grade-a";
+  if (score >= 75) return "bg-grade-b";
+  if (score >= 60) return "bg-grade-c";
+  if (score >= 40) return "bg-grade-d";
+  return "bg-grade-f";
+}
+
+const sorted = [...categories].sort(
+  (a, b) => order.indexOf(a.category) - order.indexOf(b.category),
+);
+---
+
+<div class="space-y-3">
+  {
+    sorted.map((c) => (
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span class="font-medium text-zephyr-900">
+            {CATEGORY_LABELS[c.category]}
+          </span>
+          <span class="text-zephyr-700">
+            {c.score} · {c.passed}/{c.total} checks passed
+          </span>
+        </div>
+        <div class="w-full h-3 bg-zephyr-100 rounded overflow-hidden">
+          <div
+            class={`h-full ${barColor(c.score)} transition-[width]`}
+            style={`width: ${c.score}%`}
+          />
+        </div>
+      </div>
+    ))
+  }
+</div>
