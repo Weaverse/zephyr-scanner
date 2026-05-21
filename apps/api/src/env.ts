@@ -8,6 +8,9 @@ export interface Env {
   AGENT_SECRET?: string;
   /** Optional override for staging the marketing-tools target. */
   MARKETING_BASE_URL?: string;
+  /** Shared secret for the X-Zephyr-Internal bypass header — lets the
+   *  daily cron and other internal callers skip rate limiting. */
+  INTERNAL_SECRET?: string;
 }
 
 export const API_VERSION = "0.1.0";

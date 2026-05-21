@@ -16,6 +16,7 @@ import { renderOgSvg } from "./og.js";
 import { svgToPng } from "./og-png.js";
 import { upsertZephyrContact } from "./marketing.js";
 import { runChangeDetection } from "./cron.js";
+import { checkAndIncrement } from "./rate-limit.js";
 import {
   cacheKeyForUrl,
   nanoid12,
@@ -76,6 +77,22 @@ app.get("/scan", async (c) => {
     if (cached) {
       return c.json({ ...cached, meta: { ...cached.meta, cached: true } });
     }
+  }
+
+  // Rate-limit only when we'd actually run a fresh scan — cache hits above
+  // are free. Internal callers (cron, warming) bypass via X-Zephyr-Internal.
+  const limit = await checkAndIncrement(env, c.req.raw, target.toString());
+  if (!limit.allowed) {
+    return c.json(
+      {
+        error: limit.reason === "url-throttled"
+          ? "scan rate-limited for this URL"
+          : "rate limit exceeded",
+        retryAfter: limit.retryAfterSeconds,
+      },
+      429,
+      { "Retry-After": String(limit.retryAfterSeconds ?? 60) },
+    );
   }
 
   const ctx = {
