@@ -38,3 +38,22 @@ Append-only log. Coding agent: when blocked, add an entry here instead of guessi
 **Context:** Default 10 scans/IP/hour. Risk: too low (annoys real users) or too high (gets abused).
 **Proposed answer:** Start at 10/hr, monitor first week, adjust.
 **Decided by:** Boss.
+
+### 2026-05-21 — Wrangler bindings placeholders
+**Context:** `apps/api/wrangler.toml` now declares KV (`SCANS`), R2 (`REPORTS`), and D1
+(`DB`) bindings with `TODO_FILL_IN_*` placeholder IDs. Local `wrangler dev` runs without
+them (built-in emulators); production deploy will fail until they're replaced.
+**Proposed answer:** Boss runs the wrangler create commands in `docs/deployment.md`
+(`wrangler kv:namespace create SCANS`, `wrangler r2 bucket create zephyr-reports`,
+`wrangler d1 create zephyr`) and pastes the IDs into `wrangler.toml`. Then
+`wrangler d1 execute zephyr --file=./apps/api/migrations/0001_init.sql` to bootstrap the
+leaderboard schema.
+**Decided by:** Boss.
+
+### 2026-05-21 — Protocol specs populated best-effort
+**Context:** All 6 `docs/specs/*.md` briefs were populated from public research while
+Roxie was unavailable. Confidence labels: x402 high, MCP+UCP+ACP medium, WebMCP low,
+MPP informational only.
+**Proposed answer:** Roxie reviews each brief, corrects field names / well-known URLs
+where the canonical spec differs, and updates the corresponding check + tests.
+**Decided by:** Roxie.

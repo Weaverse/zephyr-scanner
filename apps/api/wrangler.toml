@@ -3,5 +3,35 @@ main = "src/index.ts"
 compatibility_date = "2026-05-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Custom domain — uncomment after DNS is delegated to Cloudflare.
+# routes = [
+#   { pattern = "api.zephyr.build", custom_domain = true }
+# ]
+
+[vars]
+ENVIRONMENT = "production"
+SCANNER_VERSION = "0.1.0"
+
 [observability]
 enabled = true
+
+# ─── Storage bindings ────────────────────────────────────────────────
+# Boss: run the wrangler create commands in docs/deployment.md, then replace
+# every TODO_FILL_IN with the ID emitted by wrangler. Local `wrangler dev`
+# uses its built-in emulators when these IDs are absent — no Cloudflare hits.
+
+[[kv_namespaces]]
+binding = "SCANS"
+id = "TODO_FILL_IN_SCANS_KV_ID"
+preview_id = "TODO_FILL_IN_SCANS_KV_PREVIEW_ID"
+
+[[r2_buckets]]
+binding = "REPORTS"
+bucket_name = "zephyr-reports"
+preview_bucket_name = "zephyr-reports-preview"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "zephyr"
+database_id = "TODO_FILL_IN_D1_ID"
+migrations_dir = "migrations"
