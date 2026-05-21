@@ -7,8 +7,19 @@
   "scripts": {
     "dev:api": "pnpm --filter @zephyr/api dev",
     "dev:web": "pnpm --filter @zephyr/web dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm --filter @zephyr/checks test:watch",
     "build": "pnpm -r build",
-    "test": "pnpm -r test"
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.10.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0"
   },
   "packageManager": "pnpm@9.0.0"
 }

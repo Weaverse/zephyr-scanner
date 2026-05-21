@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "./packages/checks" },
+    { "path": "./packages/scoring" },
+    { "path": "./packages/badge" },
+    { "path": "./apps/api" }
+  ]
+}
