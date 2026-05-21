@@ -3,10 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2026-05-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Custom domain — uncomment after DNS is delegated to Cloudflare.
-# routes = [
-#   { pattern = "api.zephyr.build", custom_domain = true }
-# ]
+routes = [
+  { pattern = "api.zephyr.build", custom_domain = true }
+]
 
 [vars]
 ENVIRONMENT = "production"
