@@ -1,0 +1,12 @@
+{
+  "ucp_version": "1.0",
+  "store": { "name": "scoutshop", "domain": "scoutshop.com" },
+  "capabilities": [
+    {
+      "type": "discovery",
+      "description": "Search products",
+      "mcp_endpoint": "https://example.com/api/mcp/scoutshop"
+    }
+  ],
+  "tools": []
+}

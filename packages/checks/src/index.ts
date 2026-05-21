@@ -9,6 +9,8 @@ import { cartPermalinkCheck } from "./cart-permalink.js";
 import { checkoutHandoffCheck } from "./checkout-handoff.js";
 import { hreflangCheck } from "./hreflang.js";
 import { markdownNegoCheck } from "./markdown-nego.js";
+import { ucpProfileCheck } from "./ucp-profile.js";
+import { mcpCardCheck } from "./mcp-card.js";
 import type { Check, CheckContext, CheckResult } from "./types.js";
 
 export const allChecks: Check[] = [
@@ -22,6 +24,8 @@ export const allChecks: Check[] = [
   checkoutHandoffCheck,
   hreflangCheck,
   markdownNegoCheck,
+  ucpProfileCheck,
+  mcpCardCheck,
 ];
 
 export async function runCheck(check: Check, ctx: CheckContext): Promise<CheckResult> {

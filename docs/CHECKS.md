@@ -1,14 +1,14 @@
 # Check Matrix
 
-Status: 🚧 draft — 10 of 15 checks live after Day 3. Commerce protocols (Days 4-5) gated on specs.
+Status: 🚧 draft — 12 of 15 checks live after Day 4. Spec briefs at `docs/specs/`.
 
 | # | Check | Category | Severity | Status |
 |---|-------|----------|----------|--------|
 | 1 | robots.txt with AI bot rules | discoverability | important | ✅ v0 |
 | 2 | sitemap.xml valid | discoverability | important | ✅ v0 |
 | 3 | llms.txt manifest | content | nice-to-have | ✅ v0 |
-| 4 | UCP profile at `/.well-known/ucp` | commerce | critical | ⏳ |
-| 5 | MCP server card discoverable | commerce | critical | ⏳ |
+| 4 | UCP profile at `/.well-known/ucp` | commerce | critical | ✅ Day 4 |
+| 5 | MCP server card discoverable | commerce | critical | ✅ Day 4 |
 | 6 | ACP compliance markers | commerce | important | ⏳ |
 | 7 | x402 payment headers | commerce | nice-to-have | ⏳ |
 | 8 | schema.org Product JSON-LD on PDP | product-data | critical | ✅ Day 2 |

@@ -1,0 +1,4 @@
+{
+  "name": "com.scoutshop.commerce",
+  "remotes": [{ "type": "http", "url": "https://scoutshop.com/api/mcp" }]
+}

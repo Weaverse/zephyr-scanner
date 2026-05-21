@@ -1,0 +1,9 @@
+{
+  "name": "com.scoutshop.commerce",
+  "title": "Scoutshop Commerce",
+  "description": "Search, cart, and checkout for Scoutshop.",
+  "websiteUrl": "https://scoutshop.com",
+  "version": "1.0.0",
+  "remotes": [{ "type": "http", "url": "https://scoutshop.com/api/mcp" }],
+  "capabilities": { "tools": true, "resources": false, "prompts": false }
+}
