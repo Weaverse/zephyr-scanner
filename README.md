@@ -53,7 +53,7 @@ zephyr-scanner/
 
 ## Status
 
-Early WIP. v0 ships 3 checks (robots, sitemap, llms.txt). Roadmap covers 15+ checks across all commerce protocols.
+v1.0 candidate — all 15 checks live across 5 categories. KV-backed cache, R2 report archive, D1-backed leaderboard, SVG badges, and the Astro landing/result/leaderboard pages. CI runs typecheck + tests + build. Production deploy gated on Cloudflare credentials + DNS — see `docs/plan/OPEN_QUESTIONS.md`.
 
 ## License
 
