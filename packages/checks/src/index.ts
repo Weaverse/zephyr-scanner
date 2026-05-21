@@ -2,9 +2,19 @@ export * from "./types.js";
 import { robotsCheck } from "./robots.js";
 import { sitemapCheck } from "./sitemap.js";
 import { llmsTxtCheck } from "./llms-txt.js";
+import { productJsonLdCheck } from "./product-jsonld.js";
+import { productVariantsCheck } from "./product-variants.js";
+import { ogTwitterCheck } from "./og-twitter.js";
 import type { Check, CheckContext, CheckResult } from "./types.js";
 
-export const allChecks: Check[] = [robotsCheck, sitemapCheck, llmsTxtCheck];
+export const allChecks: Check[] = [
+  robotsCheck,
+  sitemapCheck,
+  llmsTxtCheck,
+  productJsonLdCheck,
+  productVariantsCheck,
+  ogTwitterCheck,
+];
 
 export async function runCheck(check: Check, ctx: CheckContext): Promise<CheckResult> {
   const start = Date.now();
