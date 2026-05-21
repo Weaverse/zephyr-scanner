@@ -12,6 +12,8 @@ import {
   USER_AGENT,
   type Env,
 } from "./env.js";
+import { renderOgSvg } from "./og.js";
+import { svgToPng } from "./og-png.js";
 import {
   cacheKeyForUrl,
   nanoid12,
@@ -20,8 +22,10 @@ import {
 import {
   leaderboardEntries,
   latestScanForDomain,
+  readOgPng,
   readScanById,
   readScanCache,
+  writeOgPng,
   writeReportToR2,
   writeScanById,
   writeScanCache,
@@ -40,6 +44,8 @@ app.get("/", (c) =>
     endpoints: [
       "/scan?url=https://example.com",
       "/badge/{domain}.svg",
+      "/og/{domain}.svg",
+      "/og/{domain}.png",
       "/leaderboard",
       "/scan/{id}",
     ],
@@ -144,6 +150,71 @@ app.get("/badge/:filename", async (c) => {
     headers: {
       "content-type": "image/svg+xml; charset=utf-8",
       "cache-control": "public, max-age=3600",
+    },
+  });
+});
+
+function ogInputFromScan(scan: StoredScan) {
+  return {
+    domain: new URL(scan.target).hostname,
+    score: scan.score.overall as number,
+    grade: scan.score.grade as Grade,
+    scannedAt: scan.scannedAt,
+    categories: (scan.score.categories ?? []) as Array<{ category: string; score: number }>,
+  };
+}
+
+app.get("/og/:filename", async (c) => {
+  const filename = c.req.param("filename");
+  const isSvg = filename.endsWith(".svg");
+  const isPng = filename.endsWith(".png");
+  if (!isSvg && !isPng) {
+    return c.json({ error: "expected .svg or .png suffix" }, 400);
+  }
+  const domain = filename
+    .slice(0, -(isSvg ? ".svg".length : ".png".length))
+    .toLowerCase();
+  const scan = await latestScanForDomain(c.env, domain);
+  if (!scan) return c.json({ error: "no scan for domain" }, 404);
+
+  if (isSvg) {
+    const svg = renderOgSvg(ogInputFromScan(scan));
+    return new Response(svg, {
+      headers: {
+        "content-type": "image/svg+xml; charset=utf-8",
+        "cache-control": "public, max-age=3600",
+      },
+    });
+  }
+
+  // PNG path — cached in R2 keyed by scan id (the OG image is invariant
+  // for a given scan, so we only render once per scan id).
+  const cached = scan.id ? await readOgPng(c.env, scan.id) : null;
+  if (cached) {
+    return new Response(cached, {
+      headers: {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=86400",
+      },
+    });
+  }
+
+  const svg = renderOgSvg(ogInputFromScan(scan));
+  let png: Uint8Array;
+  try {
+    png = await svgToPng(svg);
+  } catch (e) {
+    return c.json({ error: `og render failed: ${(e as Error).message}` }, 500);
+  }
+
+  if (scan.id) {
+    c.executionCtx.waitUntil(writeOgPng(c.env, scan.id, png));
+  }
+
+  return new Response(png, {
+    headers: {
+      "content-type": "image/png",
+      "cache-control": "public, max-age=86400",
     },
   });
 });

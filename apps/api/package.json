@@ -10,6 +10,7 @@
     "build": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2",
     "@zephyr/badge": "workspace:*",
     "@zephyr/checks": "workspace:*",
     "@zephyr/scoring": "workspace:*",

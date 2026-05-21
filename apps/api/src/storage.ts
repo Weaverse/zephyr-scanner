@@ -75,6 +75,24 @@ export async function writeReportToR2(
   });
 }
 
+export async function readOgPng(env: Env, id: string): Promise<ArrayBuffer | null> {
+  if (!env.REPORTS) return null;
+  const obj = await env.REPORTS.get(`og/${id}.png`);
+  if (!obj) return null;
+  return obj.arrayBuffer();
+}
+
+export async function writeOgPng(
+  env: Env,
+  id: string,
+  bytes: ArrayBuffer | Uint8Array,
+): Promise<void> {
+  if (!env.REPORTS) return;
+  await env.REPORTS.put(`og/${id}.png`, bytes, {
+    httpMetadata: { contentType: "image/png", cacheControl: "public, max-age=31536000" },
+  });
+}
+
 interface CategoryScore {
   category: string;
   score: number;
