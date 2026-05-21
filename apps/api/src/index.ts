@@ -15,6 +15,7 @@ import {
 import { renderOgSvg } from "./og.js";
 import { svgToPng } from "./og-png.js";
 import { upsertZephyrContact } from "./marketing.js";
+import { runChangeDetection } from "./cron.js";
 import {
   cacheKeyForUrl,
   nanoid12,
@@ -34,7 +35,7 @@ import {
   type StoredScan,
 } from "./storage.js";
 
-const app = new Hono<{ Bindings: Env }>();
+export const app = new Hono<{ Bindings: Env }>();
 app.use("*", cors());
 
 app.get("/", (c) =>
@@ -280,4 +281,12 @@ app.get("/leaderboard", async (c) => {
   return c.json({ period, category: category ?? null, entries });
 });
 
-export default app;
+// Export a Worker module so we can ship both the Hono fetch handler AND
+// a scheduled() handler for the daily change-detection cron. wrangler.toml
+// declares the cron trigger; CF invokes scheduled() at the trigger time.
+export default {
+  fetch: app.fetch,
+  async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(runChangeDetection(env));
+  },
+};

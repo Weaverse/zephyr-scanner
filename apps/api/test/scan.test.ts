@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import app from "../src/index.js";
+import { app } from "../src/index.js";
 
 const originalFetch = globalThis.fetch;
 

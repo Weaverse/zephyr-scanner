@@ -14,6 +14,12 @@ SCANNER_VERSION = "0.1.0"
 [observability]
 enabled = true
 
+# Daily change-detection cron — re-scans every zephyr-alerts subscriber's
+# domain, diffs against scan_history, posts zephyr_score_changed events
+# back to marketing.weaverse.io when regression/improvement/critical flip.
+[triggers]
+crons = ["0 2 * * *"]
+
 # ─── Storage bindings ────────────────────────────────────────────────
 # Provisioned 2026-05-21 via wrangler create commands.
 # Local `wrangler dev` uses built-in emulators; production hits these.
