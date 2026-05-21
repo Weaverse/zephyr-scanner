@@ -11,6 +11,9 @@ import { hreflangCheck } from "./hreflang.js";
 import { markdownNegoCheck } from "./markdown-nego.js";
 import { ucpProfileCheck } from "./ucp-profile.js";
 import { mcpCardCheck } from "./mcp-card.js";
+import { acpMarkersCheck } from "./acp-markers.js";
+import { x402HeadersCheck } from "./x402-headers.js";
+import { webmcpOrTrustedAgentCheck } from "./webmcp-or-trusted-agent.js";
 import type { Check, CheckContext, CheckResult } from "./types.js";
 
 export const allChecks: Check[] = [
@@ -26,6 +29,9 @@ export const allChecks: Check[] = [
   markdownNegoCheck,
   ucpProfileCheck,
   mcpCardCheck,
+  acpMarkersCheck,
+  x402HeadersCheck,
+  webmcpOrTrustedAgentCheck,
 ];
 
 export async function runCheck(check: Check, ctx: CheckContext): Promise<CheckResult> {
