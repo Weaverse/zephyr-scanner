@@ -9,9 +9,9 @@ interface Props {
 export default function ShareButtons({ domain, score, grade }: Props) {
   const [copied, setCopied] = useState<null | "link" | "embed">(null);
 
-  const url = `https://zephyr.build/scan/${domain}`;
-  const tweet = `My Shopify store scored ${score}/100 on Zephyr — the agent-readiness scanner for commerce.\n\nCheck yours: ${url}`;
-  const embed = `<a href="${url}">\n  <img src="https://zephyr.build/badge/${domain}.svg" alt="Agent readiness: ${grade} ${score}" />\n</a>`;
+  const url = `https://isyourstoreagentready.com/scan/${domain}`;
+  const tweet = `My Shopify store scored ${score}/100 on Agent Ready — the agent-readiness scanner for commerce.\n\nCheck yours: ${url}`;
+  const embed = `<a href="${url}">\n  <img src="https://isyourstoreagentready.com/badge/${domain}.svg" alt="Agent readiness: ${grade} ${score}" />\n</a>`;
 
   async function copy(text: string, key: "link" | "embed") {
     try {

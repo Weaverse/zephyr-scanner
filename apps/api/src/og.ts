@@ -76,13 +76,13 @@ export function renderLeaderboardOgSvg(entries: LeaderboardOgEntry[]): string {
   </defs>
   <rect width="1200" height="630" fill="url(#bg)" />
 
-  <text x="80" y="100" font-family="ui-monospace, SFMono-Regular, monospace" font-size="32" font-weight="700" fill="#bae6fd">zephyr</text>
+  <text x="80" y="100" font-family="ui-monospace, SFMono-Regular, monospace" font-size="32" font-weight="700" fill="#bae6fd">Agent Ready</text>
   <text x="80" y="160" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="800" fill="white">Agent-readiness leaderboard</text>
   <text x="80" y="196" font-family="Inter, system-ui, sans-serif" font-size="22" fill="#bae6fd" opacity="0.75">How ready are top commerce stores for AI agents?</text>
 
   ${rows}
 
-  <text x="80" y="600" font-family="ui-monospace, monospace" font-size="20" fill="#bae6fd" opacity="0.6">zephyr.build/leaderboard</text>
+  <text x="80" y="600" font-family="ui-monospace, monospace" font-size="20" fill="#bae6fd" opacity="0.6">isyourstoreagentready.com/leaderboard</text>
   <text x="1120" y="600" font-family="Inter, system-ui, sans-serif" font-size="18" fill="#bae6fd" opacity="0.6" text-anchor="end">powered by weaverse.io</text>
 </svg>`;
 }
@@ -127,7 +127,7 @@ export function renderOgSvg(input: OgInput): string {
   <rect width="1200" height="630" fill="url(#bg)" />
 
   <!-- Brand -->
-  <text x="80" y="100" font-family="ui-monospace, SFMono-Regular, monospace" font-size="32" font-weight="700" fill="#bae6fd">zephyr</text>
+  <text x="80" y="100" font-family="ui-monospace, SFMono-Regular, monospace" font-size="32" font-weight="700" fill="#bae6fd">Agent Ready</text>
   <text x="80" y="138" font-family="Inter, system-ui, sans-serif" font-size="20" fill="#bae6fd" opacity="0.7">Agent readiness scan</text>
 
   <!-- Domain -->
@@ -142,7 +142,7 @@ export function renderOgSvg(input: OgInput): string {
   ${catRows}
 
   <!-- Footer -->
-  <text x="80" y="612" font-family="ui-monospace, monospace" font-size="20" fill="#bae6fd" opacity="0.6">zephyr.build/scan/${xmlEscape(domain)}</text>
+  <text x="80" y="612" font-family="ui-monospace, monospace" font-size="20" fill="#bae6fd" opacity="0.6">isyourstoreagentready.com/scan/${xmlEscape(domain)}</text>
   <text x="1120" y="612" font-family="Inter, system-ui, sans-serif" font-size="18" fill="#bae6fd" opacity="0.6" text-anchor="end">powered by weaverse.io</text>
 </svg>`;
 }

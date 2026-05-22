@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 
 export const prerender = true;
 
-const SITE = "https://zephyr.build";
+const SITE = "https://isyourstoreagentready.com";
 
 const paths = [
   "/",

@@ -71,7 +71,7 @@ describe("GET /", () => {
       name: string;
       endpoints: string[];
     };
-    expect(body.name).toBe("zephyr-scanner");
+    expect(body.name).toBe("agent-ready-scanner");
     expect(body.endpoints.length).toBeGreaterThan(0);
   });
 });

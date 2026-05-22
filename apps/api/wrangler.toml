@@ -3,7 +3,13 @@ main = "src/index.ts"
 compatibility_date = "2026-05-01"
 compatibility_flags = ["nodejs_compat"]
 
+# CUTOVER NOTE: the api.isyourstoreagentready.com custom domain is only
+# provisioned when this branch is deployed AND the isyourstoreagentready.com
+# zone is already in the Cloudflare account. Add the zone in the dashboard
+# before merging/deploying, or this deploy will fail. api.zephyr.build is kept
+# alongside during the transition so existing references don't break.
 routes = [
+  { pattern = "api.isyourstoreagentready.com", custom_domain = true },
   { pattern = "api.zephyr.build", custom_domain = true }
 ]
 

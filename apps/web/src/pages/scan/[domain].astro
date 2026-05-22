@@ -29,13 +29,13 @@ if (!domain) {
 
 const data = scan as ScanResponse | null;
 const title = domain
-  ? `${domain} — Zephyr scan`
-  : "Zephyr scan";
+  ? `${domain} — Agent Ready scan`
+  : "Agent Ready scan";
 const description = data
-  ? `${new URL(data.target).hostname} scored ${data.score.overall}/100 (grade ${data.score.grade}) on Zephyr — the agent-readiness scanner for commerce.`
+  ? `${new URL(data.target).hostname} scored ${data.score.overall}/100 (grade ${data.score.grade}) on Agent Ready — the agent-readiness scanner for commerce.`
   : undefined;
 const ogImage = domain ? `${API_BASE}/og/${domain}.png` : undefined;
-const ogUrl = domain ? `https://zephyr.build/scan/${domain}` : undefined;
+const ogUrl = domain ? `https://isyourstoreagentready.com/scan/${domain}` : undefined;
 ---
 
 <Default title={title} description={description} ogImage={ogImage} ogUrl={ogUrl}>

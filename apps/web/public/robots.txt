@@ -1,4 +1,4 @@
-# zephyr.build is a public content site — we want AI agents to read it.
+# isyourstoreagentready.com is a public content site — we want AI agents to read it.
 User-agent: *
 Allow: /
 
@@ -27,4 +27,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://zephyr.build/sitemap.xml
+Sitemap: https://isyourstoreagentready.com/sitemap.xml

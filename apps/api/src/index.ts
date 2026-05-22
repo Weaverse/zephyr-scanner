@@ -41,7 +41,7 @@ app.use("*", cors());
 
 app.get("/", (c) =>
   c.json({
-    name: "zephyr-scanner",
+    name: "agent-ready-scanner",
     version: API_VERSION,
     description: "Is your store agent-ready?",
     endpoints: [
