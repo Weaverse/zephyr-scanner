@@ -1,0 +1,146 @@
+---
+import Default from "../../layouts/Default.astro";
+
+const title = "Zephyr vs Cloudflare Agent Readiness — Compare";
+const description =
+  "Cloudflare's Agent Readiness scanner scores 50+ general signals but doesn't count commerce protocols toward your score. Zephyr is the commerce-deep, headless-aware alternative. An honest comparison.";
+const canonical = "https://zephyr.build/compare/cloudflare-agent-readiness";
+
+const rows = [
+  { feature: "Free, public, any URL", zephyr: true, them: true },
+  {
+    feature: "Breadth of general agent signals",
+    zephyr: "15 commerce-focused checks",
+    them: "50+ signals, 6 dimensions",
+  },
+  {
+    feature: "Internet-wide adoption data",
+    zephyr: false,
+    them: "Cloudflare Radar weekly dataset",
+  },
+  {
+    feature: "Commerce protocols count toward score",
+    zephyr: "Yes — core to the score",
+    them: "Checked, but excluded from score",
+  },
+  {
+    feature: "Headless / Hydrogen commerce focus",
+    zephyr: "Built for it",
+    them: "Platform-agnostic, general",
+  },
+  {
+    feature: "Per-check remediation hints",
+    zephyr: "Every failing check",
+    them: "Copyable agent prompts",
+  },
+  {
+    feature: "Re-scan over time + email on change",
+    zephyr: "Weekly change-detection",
+    them: false,
+  },
+  { feature: "Embeddable badge", zephyr: true, them: false },
+];
+---
+
+<Default
+  title={title}
+  description={description}
+  ogUrl={canonical}
+  canonical={canonical}
+>
+  <section class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm font-mono uppercase tracking-wide text-zephyr-500 mb-3">
+      Comparison
+    </p>
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-zephyr-900 mb-4">
+      Zephyr vs Cloudflare Agent Readiness
+    </h1>
+    <p class="text-lg text-zephyr-700 mb-6">
+      Cloudflare's <code class="font-mono text-sm">isitagentready.com</code> is
+      the broadest agent-readiness scanner out there — 50+ signals across six
+      dimensions, plus an internet-wide adoption dataset on Cloudflare Radar. If
+      you want a general read on a content site or API, it's excellent. The catch
+      for merchants: Cloudflare checks commerce protocols but
+      <strong>doesn't count them toward your score.</strong> That's exactly what
+      Zephyr scores. <span class="text-zephyr-500"
+        >(Comparison reflects public information as of May 2026.)</span
+      >
+    </p>
+
+    <div class="overflow-x-auto rounded-lg border border-zephyr-100 bg-white">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zephyr-100 text-left">
+            <th class="px-4 py-3 font-semibold text-zephyr-900"></th>
+            <th class="px-4 py-3 font-semibold text-zephyr-600">Zephyr</th>
+            <th class="px-4 py-3 font-semibold text-zephyr-700">
+              Cloudflare Agent Readiness
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((r) => (
+              <tr class="border-b border-zephyr-50 last:border-0 align-top">
+                <td class="px-4 py-3 text-zephyr-700">{r.feature}</td>
+                <td class="px-4 py-3 text-zephyr-900">
+                  {r.zephyr === true
+                    ? "✓"
+                    : r.zephyr === false
+                      ? "—"
+                      : r.zephyr}
+                </td>
+                <td class="px-4 py-3 text-zephyr-700">
+                  {r.them === true ? "✓" : r.them === false ? "—" : r.them}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose prose-zephyr mt-10">
+      <h2 class="text-2xl font-bold text-zephyr-900 mb-3">
+        Use Cloudflare when…
+      </h2>
+      <p class="text-zephyr-700">
+        You want the widest possible signal coverage, you're auditing a content
+        site or API rather than a store, or you want to see how your readiness
+        compares across the whole internet via Radar. Cloudflare's breadth and
+        data are unmatched.
+      </p>
+
+      <h2 class="text-2xl font-bold text-zephyr-900 mt-8 mb-3">
+        Use Zephyr when…
+      </h2>
+      <ul class="text-zephyr-700 list-disc pl-6 space-y-2">
+        <li>
+          <strong>You sell things.</strong> Agentic-commerce protocols (UCP, MCP,
+          ACP, x402, WebMCP) are the whole point of your readiness — and the part
+          a general scanner leaves out of the number that matters.
+        </li>
+        <li>
+          <strong>You're on Hydrogen or headless.</strong> Zephyr's checks are
+          framed for storefronts where you own the request path.
+        </li>
+        <li>
+          <strong>You want to be told when it breaks.</strong> Subscribe for
+          weekly re-scans and an email when a deploy moves your grade.
+        </li>
+      </ul>
+    </div>
+
+    <div class="mt-10 rounded-lg bg-zephyr-900 p-8 text-center text-white">
+      <p class="text-lg font-semibold mb-4">
+        Get the commerce score the general scanners leave out.
+      </p>
+      <a
+        href="/"
+        class="inline-block rounded-lg bg-white px-6 py-3 font-medium text-zephyr-900 hover:bg-zephyr-50"
+      >
+        Run a free scan →
+      </a>
+    </div>
+  </section>
+</Default>

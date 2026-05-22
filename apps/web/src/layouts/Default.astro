@@ -6,6 +6,7 @@ interface Props {
   description?: string;
   ogImage?: string;
   ogUrl?: string;
+  canonical?: string;
 }
 
 const {
@@ -13,6 +14,7 @@ const {
   description = "Free commerce-focused agent readiness scanner. Score your Shopify, Hydrogen, or commerce store against 15 checks for AI-agent readiness.",
   ogImage,
   ogUrl,
+  canonical,
 } = Astro.props;
 ---
 
@@ -34,6 +36,7 @@ const {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-zephyr-50 text-zephyr-900 min-h-screen flex flex-col">
@@ -43,6 +46,8 @@ const {
           zephyr
         </a>
         <nav class="flex gap-6 text-sm font-medium text-zephyr-700">
+          <a href="/hydrogen" class="hover:text-zephyr-500">Hydrogen</a>
+          <a href="/compare" class="hover:text-zephyr-500">Compare</a>
           <a href="/leaderboard" class="hover:text-zephyr-500">Leaderboard</a>
           <a href="/about" class="hover:text-zephyr-500">About</a>
           <a

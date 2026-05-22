@@ -1,0 +1,138 @@
+---
+import Default from "../layouts/Default.astro";
+
+const title = "Is your Hydrogen store agent-ready? — Zephyr";
+const description =
+  "The agent-readiness checklist for Shopify Hydrogen and headless storefronts. Why generic scanners miss headless, and the 15 checks that actually matter for AI commerce.";
+const canonical = "https://zephyr.build/hydrogen";
+
+const checklist = [
+  {
+    cat: "Discoverability",
+    items: [
+      "robots.txt is served by your Hydrogen app, not Shopify's online store — headless splits these, and most stores ship the framework default.",
+      "sitemap.xml routes resolve on your custom domain, not the myshopify.com origin.",
+      "AI bot user-agents (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) have explicit rules.",
+    ],
+  },
+  {
+    cat: "Content",
+    items: [
+      "llms.txt manifest at the domain root — the single highest-leverage file, and almost never present on a headless build.",
+      "Markdown content negotiation (Accept: text/markdown) for product and policy pages.",
+    ],
+  },
+  {
+    cat: "Commerce protocols",
+    items: [
+      "UCP profile exposed at /.well-known/ucp — Shopify ships this on Liquid storefronts, but headless apps must wire it through themselves.",
+      "MCP server card discovery (SEP-2127).",
+      "ACP / x402 / WebMCP opt-in markers where applicable.",
+    ],
+  },
+  {
+    cat: "Product data",
+    items: [
+      "Product JSON-LD rendered server-side — client-only React hydration means agents that don't run JS see nothing.",
+      "ProductGroup + variant/pricing clarity for variant families.",
+      "Open Graph / Twitter cards on PDPs.",
+    ],
+  },
+  {
+    cat: "Checkout",
+    items: [
+      "Cart permalinks resolve.",
+      "Checkout handoff URL is reachable and not gated behind JS.",
+    ],
+  },
+];
+---
+
+<Default
+  title={title}
+  description={description}
+  ogUrl={canonical}
+  canonical={canonical}
+>
+  <section class="bg-white border-b border-zephyr-100">
+    <div class="max-w-3xl mx-auto px-6 py-16 text-center">
+      <p class="text-sm font-mono uppercase tracking-wide text-zephyr-500 mb-3">
+        For Hydrogen &amp; headless stores
+      </p>
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-zephyr-900 mb-4">
+        Is your Hydrogen store agent-ready?
+      </h1>
+      <p class="text-lg text-zephyr-700 mb-8">
+        Generic readiness scanners assume a classic Liquid storefront. Headless
+        Hydrogen builds split robots, sitemaps, structured data, and protocol
+        endpoints across your own app — so the things Shopify serves for free are
+        suddenly yours to wire up. Zephyr checks the headless reality.
+      </p>
+      <a
+        href="/"
+        class="inline-block rounded-lg bg-zephyr-600 px-6 py-3 font-medium text-white hover:bg-zephyr-500"
+      >
+        Scan your store →
+      </a>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-12 prose prose-zephyr">
+    <h2 class="text-2xl font-bold text-zephyr-900 mb-3">
+      Why headless changes the answer
+    </h2>
+    <p class="text-zephyr-700">
+      On a hosted Shopify theme, the platform emits a usable robots.txt, a
+      sitemap, product JSON-LD, and (increasingly) agentic-commerce protocol
+      surfaces for you. Go headless with Hydrogen and you own the request path:
+      your Remix/React app decides what robots see, whether structured data is
+      rendered on the server, and whether protocol endpoints exist at all. The
+      most common failure isn't a misconfiguration — it's an absence. An agent
+      that doesn't execute JavaScript sees an empty shell where your product data
+      should be.
+    </p>
+
+    <h2 class="text-2xl font-bold text-zephyr-900 mt-10 mb-3">
+      The Hydrogen agent-readiness checklist
+    </h2>
+    <p class="text-zephyr-700 mb-6">
+      Fifteen checks across five categories. The ones most often missed on
+      headless builds are called out below.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-12 space-y-6">
+    {
+      checklist.map((group) => (
+        <div class="border border-zephyr-100 rounded-lg bg-white p-6">
+          <h3 class="font-semibold text-zephyr-900 mb-3">{group.cat}</h3>
+          <ul class="text-sm text-zephyr-700 space-y-2 list-disc pl-5">
+            {group.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </section>
+
+  <section class="bg-zephyr-900 text-white">
+    <div class="max-w-3xl mx-auto px-6 py-12 text-center">
+      <h2 class="text-2xl font-bold mb-3">
+        Built on Hydrogen? Don't guess — measure.
+      </h2>
+      <p class="text-zephyr-100 mb-6">
+        Zephyr is open source and built by
+        <a href="https://weaverse.io" class="underline">Weaverse</a>, the team
+        behind Hydrogen theme tooling. Scan once, subscribe, and we'll re-check
+        weekly and email you when a deploy changes your score.
+      </p>
+      <a
+        href="/"
+        class="inline-block rounded-lg bg-white px-6 py-3 font-medium text-zephyr-900 hover:bg-zephyr-50"
+      >
+        Run a free scan →
+      </a>
+    </div>
+  </section>
+</Default>
