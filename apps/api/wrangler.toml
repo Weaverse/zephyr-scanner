@@ -14,6 +14,14 @@ SCANNER_VERSION = "0.1.0"
 [observability]
 enabled = true
 
+# Bundle .ttf font files as Data modules (ArrayBuffer imports) so the OG
+# image renderer (resvg-wasm) has fonts to draw text with. Without an
+# embedded font, resvg renders shapes but no glyphs.
+[[rules]]
+type = "Data"
+globs = ["**/*.ttf"]
+fallthrough = true
+
 # Daily change-detection cron — re-scans every zephyr-alerts subscriber's
 # domain, diffs against scan_history, posts zephyr_score_changed events
 # back to marketing.weaverse.io when regression/improvement/critical flip.

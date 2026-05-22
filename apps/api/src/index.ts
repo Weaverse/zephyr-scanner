@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { cors } from "hono/cors";
 import { allChecks, runAll } from "@zephyr/checks";
 import { scoreResults } from "@zephyr/scoring";
@@ -12,7 +12,7 @@ import {
   USER_AGENT,
   type Env,
 } from "./env.js";
-import { renderOgSvg } from "./og.js";
+import { renderOgSvg, renderLeaderboardOgSvg } from "./og.js";
 import { svgToPng } from "./og-png.js";
 import { upsertZephyrContact } from "./marketing.js";
 import { runChangeDetection } from "./cron.js";
@@ -49,6 +49,7 @@ app.get("/", (c) =>
       "/badge/{domain}.svg",
       "/og/{domain}.svg",
       "/og/{domain}.png",
+      "/leaderboard/og.png",
       "/leaderboard",
       "/scan/{id}",
       "POST /subscribe",
@@ -183,6 +184,48 @@ function ogInputFromScan(scan: StoredScan) {
     categories: (scan.score.categories ?? []) as Array<{ category: string; score: number }>,
   };
 }
+
+// Leaderboard OG card — the social preview *is* the ranking. Lives under
+// /leaderboard/ rather than /og/ so it can't collide with the /og/:filename
+// (per-domain) route. Rendered fresh (the board moves as scans land) with a
+// short edge cache. Two static routes share one handler — a mixed
+// static+param segment (og.:ext) doesn't match in Hono's RegExpRouter.
+async function leaderboardOg(c: Context<{ Bindings: Env }>, ext: "svg" | "png") {
+  const entries = await leaderboardEntries(c.env, { period: "all", limit: 8 });
+  const svg = renderLeaderboardOgSvg(
+    entries.map((e) => ({
+      rank: e.rank,
+      domain: e.domain,
+      score: e.score,
+      grade: e.grade as Grade,
+    })),
+  );
+
+  if (ext === "svg") {
+    return new Response(svg, {
+      headers: {
+        "content-type": "image/svg+xml; charset=utf-8",
+        "cache-control": "public, max-age=3600",
+      },
+    });
+  }
+
+  let png: Uint8Array;
+  try {
+    png = await svgToPng(svg);
+  } catch (e) {
+    return c.json({ error: `og render failed: ${(e as Error).message}` }, 500);
+  }
+  return new Response(png, {
+    headers: {
+      "content-type": "image/png",
+      "cache-control": "public, max-age=3600",
+    },
+  });
+}
+
+app.get("/leaderboard/og.svg", (c) => leaderboardOg(c, "svg"));
+app.get("/leaderboard/og.png", (c) => leaderboardOg(c, "png"));
 
 app.get("/og/:filename", async (c) => {
   const filename = c.req.param("filename");

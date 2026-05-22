@@ -1,0 +1,8 @@
+Roboto-Regular.ttf and Roboto-Bold.ttf are subsets of the Roboto font
+family by Google, licensed under the Apache License, Version 2.0.
+
+https://fonts.google.com/specimen/Roboto
+https://www.apache.org/licenses/LICENSE-2.0
+
+Bundled here solely so the OG image renderer (resvg-wasm) has glyphs to
+draw with inside the Cloudflare Worker runtime, which has no system fonts.
