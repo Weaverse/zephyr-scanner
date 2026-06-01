@@ -11,3 +11,52 @@ html {
 body {
   min-height: 100vh;
 }
+
+/* Breathing glow behind the hero scan input — gently pulses to draw the eye. */
+@keyframes scan-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+.scan-glow {
+  animation: scan-glow-pulse 3.5s ease-in-out infinite;
+}
+.group:focus-within .scan-glow {
+  opacity: 0.7;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scan-glow {
+    animation: none;
+  }
+}
+
+/* Decorative grid patterns — shared across page heroes and dark CTAs. */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(36, 86, 216, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36, 86, 216, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, #000 35%, transparent 80%);
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 60% at 50% 0%,
+    #000 35%,
+    transparent 80%
+  );
+}
+.hero-grid-dark {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 70% at 50% 0%,
+    #000 30%,
+    transparent 80%
+  );
+}

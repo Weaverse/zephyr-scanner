@@ -65,7 +65,7 @@ export default function LeaderboardFilter({
       <button
         type="button"
         onClick={apply}
-        className="px-4 py-2 rounded-md bg-zephyr-600 text-white text-sm font-medium hover:bg-zephyr-700"
+        className="px-4 py-2 rounded-md bg-brand-600 text-white text-sm font-medium hover:bg-brand-700"
       >
         Apply
       </button>

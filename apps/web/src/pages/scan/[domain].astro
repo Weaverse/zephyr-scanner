@@ -1,5 +1,6 @@
 ---
 import Default from "../../layouts/Default.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
 import ScoreGauge from "../../components/ScoreGauge.astro";
 import CategoryBars from "../../components/CategoryBars.astro";
 import CheckList from "../../components/CheckList.astro";
@@ -56,22 +57,40 @@ const ogUrl = domain ? `https://isyourstoreagentready.com/scan/${domain}` : unde
     {
       data && (
         <>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
-            <div>
-              <h1 class="text-3xl font-bold text-zephyr-900 break-all">
-                {new URL(data.target).hostname}
-              </h1>
-              <p class="text-sm text-zephyr-700">
-                Scanned {new Date(data.scannedAt).toLocaleString()}
-                {data.meta.cached ? " · served from cache" : ""}
-              </p>
+          <div class="relative overflow-hidden rounded-2xl border border-zephyr-100 bg-gradient-to-br from-brand-50/70 via-white to-white p-6 sm:p-8 mb-8">
+            <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+            <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-500/15 blur-3xl" aria-hidden="true"></div>
+            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <Eyebrow label="Scan report" />
+                <h1 class="mt-3 flex items-center gap-2.5 text-3xl font-bold text-zephyr-900 break-all">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-7 w-7 shrink-0 text-brand-500"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z" />
+                  </svg>
+                  {new URL(data.target).hostname}
+                </h1>
+                <p class="text-sm text-zephyr-700">
+                  Scanned {new Date(data.scannedAt).toLocaleString()}
+                  {data.meta.cached ? " · served from cache" : ""}
+                </p>
+              </div>
+              <a
+                href={`?fresh=true`}
+                class="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-zephyr-200 bg-white text-sm font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-md"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16m0 5v-5h5"/></svg>
+                Re-scan
+              </a>
             </div>
-            <a
-              href={`?fresh=true`}
-              class="self-start sm:self-auto px-4 py-2 rounded-md border border-zephyr-200 bg-white text-sm font-medium hover:bg-zephyr-100"
-            >
-              Re-scan
-            </a>
           </div>
 
           {data.meta.limitedCoverage && (
@@ -81,15 +100,15 @@ const ogUrl = domain ? `https://isyourstoreagentready.com/scan/${domain}` : unde
             />
           )}
 
-          <div class="grid lg:grid-cols-[1fr_2fr] gap-8 items-start mb-12">
-            <div class="bg-white border border-zephyr-100 rounded-xl p-6">
+          <div class="mb-12 grid items-stretch gap-8 rounded-xl border border-zephyr-100 bg-white p-6 lg:grid-cols-[1fr_2fr] lg:gap-10 lg:divide-x lg:divide-zephyr-100">
+            <div class="flex flex-col items-center justify-center lg:pr-2">
               <ScoreGauge score={data.score.overall} grade={data.score.grade} />
-              <p class="text-center text-sm text-zephyr-700 mt-4">
+              <p class="mt-4 text-center text-sm text-zephyr-700">
                 {data.score.passed} of {data.score.total} checks passed
               </p>
             </div>
-            <div class="bg-white border border-zephyr-100 rounded-xl p-6">
-              <h2 class="text-lg font-semibold mb-4 text-zephyr-900">
+            <div class="lg:pl-8">
+              <h2 class="mb-4 text-lg font-semibold text-zephyr-900">
                 Category breakdown
               </h2>
               <CategoryBars categories={data.score.categories} />
@@ -98,7 +117,10 @@ const ogUrl = domain ? `https://isyourstoreagentready.com/scan/${domain}` : unde
 
           <section class="mb-12">
             <h2 class="text-2xl font-bold text-zephyr-900 mb-6">Check results</h2>
-            <CheckList results={data.results} />
+            <CheckList
+              results={data.results}
+              categories={data.score.categories}
+            />
           </section>
 
           <section class="bg-white border border-zephyr-100 rounded-xl p-6 mb-6">
@@ -118,19 +140,37 @@ const ogUrl = domain ? `https://isyourstoreagentready.com/scan/${domain}` : unde
             />
           </section>
 
-          <aside class="rounded-xl bg-zephyr-900 text-white p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h3 class="font-semibold mb-1">Built on Hydrogen?</h3>
-              <p class="text-sm text-zephyr-100">
-                Get these issues auto-fixed with Weaverse →
-              </p>
+          <aside class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zephyr-900 via-zephyr-900 to-[#0b1220] p-6 text-white sm:p-8">
+            <div class="hero-grid-dark pointer-events-none absolute inset-0" aria-hidden="true"></div>
+            <div class="pointer-events-none absolute -left-16 -top-20 h-60 w-60 rounded-full bg-brand-500/25 blur-3xl" aria-hidden="true"></div>
+            <div class="pointer-events-none absolute -bottom-24 right-0 h-60 w-60 rounded-full bg-sky-500/15 blur-3xl" aria-hidden="true"></div>
+            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex items-start gap-4">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-300 ring-1 ring-inset ring-white/10">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="m11.4 15.2 5.9 5.8a2.65 2.65 0 0 0 3.7-3.7l-5.9-5.9M11.4 15.2l2.5-3a3 3 0 0 1 1.2-.8m-3.7 3.8-4.7 5.6a2.55 2.55 0 1 1-3.6-3.6l6.9-5.6m5.1-.2c.55-.17 1.16-.2 1.74-.14a4.5 4.5 0 0 0 4.5-6.34l-3.28 3.28a3 3 0 0 1-2.25-2.25l3.28-3.28a4.5 4.5 0 0 0-6.34 4.49c.09 1.07-.07 2.26-.9 2.95"/></svg>
+                </span>
+                <div>
+                  <span class="text-xs font-semibold uppercase tracking-wide text-brand-300">
+                    Done-for-you fixes
+                  </span>
+                  <h3 class="mt-0.5 text-xl font-bold">Built on Hydrogen?</h3>
+                  <p class="mt-1 max-w-md text-sm text-zephyr-100/70">
+                    Weaverse fixes these agent-readiness gaps for you — structured
+                    data, protocol endpoints, and more — right inside your
+                    Hydrogen storefront.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="https://weaverse.io"
+                class="group/cta inline-flex shrink-0 items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-zephyr-900 shadow-lg transition-shadow hover:shadow-xl"
+              >
+                Explore Weaverse
+                <span class="transition-transform duration-200 group-hover/cta:translate-x-1">
+                  →
+                </span>
+              </a>
             </div>
-            <a
-              href="https://weaverse.io"
-              class="px-4 py-2 rounded-md bg-white text-zephyr-900 font-medium text-sm hover:bg-zephyr-100"
-            >
-              Explore Weaverse
-            </a>
           </aside>
         </>
       )

@@ -75,14 +75,14 @@ export default function SubscribeForm({ domain }: Props) {
           placeholder="you@yourstore.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-md border border-zephyr-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zephyr-500"
+          className="flex-1 px-3 py-2 rounded-md border border-zephyr-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           aria-label="Email address"
           disabled={state.kind === "submitting"}
         />
         <button
           type="submit"
           disabled={state.kind === "submitting"}
-          className="px-4 py-2 rounded-md bg-zephyr-600 text-white text-sm font-medium hover:bg-zephyr-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+          className="px-4 py-2 rounded-md bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
         >
           {state.kind === "submitting" ? "Subscribing…" : "Watch this store →"}
         </button>

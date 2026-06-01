@@ -16,6 +16,15 @@ const {
   ogUrl,
   canonical,
 } = Astro.props;
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const navItems = [
+  { href: "/hydrogen", label: "Hydrogen" },
+  { href: "/compare", label: "Compare" },
+  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/about", label: "About" },
+];
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 ---
 
 <!doctype html>
@@ -40,25 +49,44 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-zephyr-50 text-zephyr-900 min-h-screen flex flex-col">
-    <header class="border-b border-zephyr-100 bg-white">
+    <header class="bg-gradient-to-r from-brand-700 to-brand-600 text-white shadow-sm">
       <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="/" class="font-mono font-bold text-xl text-zephyr-600">
-          Agent Ready
+        <a href="/" class="flex items-center gap-2.5">
+          <img
+            src="/logo.svg"
+            alt="Agent Ready logo"
+            width="32"
+            height="32"
+            class="h-8 w-8 shrink-0 drop-shadow-sm"
+          />
+          <span class="font-mono text-xl font-bold text-white">Agent Ready</span>
         </a>
-        <nav class="flex gap-6 text-sm font-medium text-zephyr-700">
-          <a href="/hydrogen" class="hover:text-zephyr-500">Hydrogen</a>
-          <a href="/compare" class="hover:text-zephyr-500">Compare</a>
-          <a href="/leaderboard" class="hover:text-zephyr-500">Leaderboard</a>
-          <a href="/about" class="hover:text-zephyr-500">About</a>
+        <nav class="flex gap-6 text-sm font-medium">
+          {
+            navItems.map((item) => (
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
+                class:list={[
+                  "relative transition-colors",
+                  isActive(item.href)
+                    ? "font-semibold text-white after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-white"
+                    : "text-white/80 hover:text-white",
+                ]}
+              >
+                {item.label}
+              </a>
+            ))
+          }
           <a
             href="https://github.com/Weaverse/zephyr-scanner"
-            class="hover:text-zephyr-500"
+            class="text-white/80 transition-colors hover:text-white"
           >
             GitHub
           </a>
           <a
             href="https://weaverse.io"
-            class="hover:text-zephyr-500"
+            class="text-white/80 transition-colors hover:text-white"
           >
             Powered by Weaverse
           </a>
@@ -75,7 +103,7 @@ const {
         <span>MIT licensed · Built by Weaverse</span>
         <a
           href="https://github.com/Weaverse/zephyr-scanner"
-          class="hover:text-zephyr-500"
+          class="hover:text-brand-600"
         >
           github.com/Weaverse/zephyr-scanner
         </a>

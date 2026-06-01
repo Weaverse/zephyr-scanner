@@ -1,0 +1,33 @@
+---
+// A small pill "eyebrow" badge with an animated live dot.
+// Use above page headings for a consistent accent across the site.
+interface Props {
+  label: string;
+  /** Dark variant for use on dark backgrounds. */
+  dark?: boolean;
+}
+const { label, dark = false } = Astro.props;
+---
+
+<span
+  class:list={[
+    "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium shadow-sm backdrop-blur",
+    dark
+      ? "border border-white/15 bg-white/10 text-white"
+      : "border border-brand-100 bg-white/70 text-brand-700",
+  ]}
+>
+  <span class="relative flex h-2 w-2">
+    <span
+      class:list={[
+        "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+        dark ? "bg-sky-300" : "bg-brand-500",
+      ]}></span>
+    <span
+      class:list={[
+        "relative inline-flex h-2 w-2 rounded-full",
+        dark ? "bg-sky-300" : "bg-brand-600",
+      ]}></span>
+  </span>
+  {label}
+</span>

@@ -1,22 +1,59 @@
 ---
 import Default from "../layouts/Default.astro";
 import ScanInput from "../components/ScanInput";
-import { fetchLeaderboard, gradeColor } from "../lib/api";
 
-const board = await fetchLeaderboard({ limit: 5 }).catch(() => null);
-const entries = board && "entries" in board ? board.entries : [];
+// Inline outline icons (Heroicons), colored via the wrapper's text color.
+const icons = {
+  search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m21 21-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"/></svg>`,
+  doc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.6a1 1 0 0 1 .7.3l5.4 5.4a1 1 0 0 1 .3.7V19a2 2 0 0 1-2 2Z"/></svg>`,
+  bag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5M4.4 8.5h15.2l1.1 11.2a1.1 1.1 0 0 1-1.1 1.3H4.4a1.1 1.1 0 0 1-1.1-1.3L4.4 8.5Z"/></svg>`,
+  cube: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>`,
+  card: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M2.5 9h19M6 14.5h4.5M4.5 18.75h15A2.25 2.25 0 0 0 21.75 16.5v-9A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5v9A2.25 2.25 0 0 0 4.5 18.75Z"/></svg>`,
+  link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M13.2 10.8a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7l1.3-1.3m-1.7-3.9a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7L11.5 6.9"/></svg>`,
+  clipboardCheck: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4"/></svg>`,
+};
+
+const steps = [
+  {
+    num: "01",
+    icon: icons.link,
+    title: "Paste your URL",
+    desc: "Any commerce store — Shopify, Hydrogen, custom storefront.",
+  },
+  {
+    num: "02",
+    icon: icons.search,
+    title: "15 checks, 5 categories",
+    desc: "Discoverability, content, commerce protocols, product data, and checkout.",
+  },
+  {
+    num: "03",
+    icon: icons.clipboardCheck,
+    title: "Get a fix-it list",
+    desc: "Every failing check ships with a remediation hint.",
+  },
+];
 
 const categoryCards = [
   {
     title: "Discoverability",
+    icon: icons.search,
+    accent: "bg-sky-50 text-sky-600 ring-sky-100",
+    blurb: "Can agents find and crawl your store?",
     checks: ["robots.txt with AI bot rules", "sitemap.xml", "hreflang"],
   },
   {
     title: "Content",
+    icon: icons.doc,
+    accent: "bg-violet-50 text-violet-600 ring-violet-100",
+    blurb: "Is your content readable by machines?",
     checks: ["llms.txt manifest", "markdown content negotiation"],
   },
   {
     title: "Commerce",
+    icon: icons.bag,
+    accent: "bg-brand-50 text-brand-600 ring-brand-100",
+    blurb: "Do you speak the agent commerce protocols?",
     checks: [
       "UCP profile",
       "MCP server card",
@@ -27,10 +64,16 @@ const categoryCards = [
   },
   {
     title: "Product Data",
+    icon: icons.cube,
+    accent: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+    blurb: "Is your catalog structured and unambiguous?",
     checks: ["Product JSON-LD", "variants & pricing clarity", "OG / Twitter cards"],
   },
   {
     title: "Checkout",
+    icon: icons.card,
+    accent: "bg-amber-50 text-amber-600 ring-amber-100",
+    blurb: "Can an agent complete a purchase?",
     checks: ["cart permalinks", "checkout handoff URL"],
   },
 ];
@@ -38,39 +81,90 @@ const categoryCards = [
 
 <Default>
   <!-- Hero -->
-  <section class="bg-white border-b border-zephyr-100">
-    <div class="max-w-4xl mx-auto px-6 py-20 text-center">
-      <h1 class="text-5xl sm:text-6xl font-bold tracking-tight text-zephyr-900 mb-3">
+  <section class="relative overflow-hidden border-b border-zephyr-100 bg-gradient-to-b from-brand-50/70 via-white to-white">
+    <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div
+      class="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="pointer-events-none absolute -right-20 top-0 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div class="relative max-w-4xl mx-auto px-6 py-24 text-center">
+      <span class="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-brand-700 shadow-sm backdrop-blur">
+        <span class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-500 opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-brand-600"></span>
+        </span>
+        Agent-readiness scanner for commerce
+      </span>
+      <h1 class="mt-6 text-5xl sm:text-6xl font-bold tracking-tight text-zephyr-900">
         Shopify built the rails.
       </h1>
-      <p class="text-2xl sm:text-3xl text-zephyr-700 mb-10">
-        Agent Ready tells you if your store is on them.
+      <p class="mt-4 text-2xl sm:text-3xl font-medium text-zephyr-700">
+        <span class="bg-gradient-to-r from-brand-600 to-sky-500 bg-clip-text text-transparent">
+          Agent Ready
+        </span>
+        tells you if your store is on them.
       </p>
-      <ScanInput client:load />
-      <p class="mt-6 text-sm text-zephyr-700">
-        Free. No signup. Built by
-        <a
-          href="https://weaverse.io"
-          class="underline hover:text-zephyr-500"
-        >
-          Weaverse
-        </a>
-        .
+      <div class="mt-10">
+        <ScanInput client:load />
+      </div>
+      <p class="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-zephyr-700">
+        <span>Free. No signup.</span>
+        <span class="text-zephyr-200">·</span>
+        <span>15 checks across 5 categories.</span>
+        <span class="text-zephyr-200">·</span>
+        <span>
+          Built by
+          <a href="https://weaverse.io" class="underline hover:text-brand-600">
+            Weaverse
+          </a>
+        </span>
       </p>
     </div>
   </section>
 
   <!-- What we check -->
   <section class="max-w-6xl mx-auto px-6 py-16">
-    <h2 class="text-2xl font-bold text-zephyr-900 mb-8">What we check</h2>
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-zephyr-900">What we check</h2>
+      <p class="mt-1 text-zephyr-700">
+        15 checks across 5 categories — the signals AI agents look for.
+      </p>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       {
         categoryCards.map((c) => (
-          <div class="border border-zephyr-100 rounded-lg p-4 bg-white">
-            <h3 class="font-semibold text-zephyr-900 mb-2">{c.title}</h3>
-            <ul class="text-sm text-zephyr-700 space-y-1">
+          <div class="group relative flex flex-col rounded-xl border border-zephyr-100 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-brand-100 hover:shadow-lg hover:shadow-zephyr-900/5">
+            <div class="flex items-start justify-between mb-4">
+              <span
+                class={`inline-flex items-center justify-center w-10 h-10 rounded-lg ring-1 ring-inset transition-transform duration-200 group-hover:scale-110 ${c.accent}`}
+                set:html={c.icon}
+              />
+              <span class="text-[11px] font-semibold uppercase tracking-wide text-zephyr-500 bg-zephyr-50 rounded-full px-2 py-1">
+                {c.checks.length} {c.checks.length === 1 ? "check" : "checks"}
+              </span>
+            </div>
+            <h3 class="font-semibold text-zephyr-900">{c.title}</h3>
+            <p class="mt-1 mb-4 min-h-[2.5rem] text-sm text-zephyr-700 leading-snug">{c.blurb}</p>
+            <ul class="space-y-1.5 border-t border-zephyr-100 pt-3 text-sm text-zephyr-700">
               {c.checks.map((check) => (
-                <li>· {check}</li>
+                <li class="flex items-start gap-2">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="mt-0.5 w-3.5 h-3.5 shrink-0 text-brand-500"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 0 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  <span>{check}</span>
+                </li>
               ))}
             </ul>
           </div>
@@ -79,79 +173,335 @@ const categoryCards = [
     </div>
   </section>
 
-  <!-- Leaderboard preview -->
-  {
-    entries.length > 0 && (
-      <section class="bg-white border-y border-zephyr-100">
-        <div class="max-w-6xl mx-auto px-6 py-12">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-bold text-zephyr-900">Top scores</h2>
-            <a
-              href="/leaderboard"
-              class="text-sm text-zephyr-600 hover:text-zephyr-500"
-            >
-              See full leaderboard →
-            </a>
-          </div>
-          <ol class="divide-y divide-zephyr-100">
-            {entries.map((e) => (
-              <li class="flex items-center justify-between py-3">
-                <a
-                  href={`/scan/${e.domain}`}
-                  class="font-mono text-zephyr-700 hover:text-zephyr-500"
-                >
-                  #{e.rank} · {e.domain}
-                </a>
-                <span class={`font-mono font-bold ${gradeColor(e.grade)}`}>
-                  {e.grade} {e.score}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-    )
-  }
-
   <!-- How it works -->
-  <section class="max-w-6xl mx-auto px-6 py-16">
+  <section class="relative overflow-hidden border-y border-zephyr-100 bg-gradient-to-b from-white to-brand-50/50">
+    <div class="howto-dots pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="relative max-w-6xl mx-auto px-6 py-16">
     <h2 class="text-2xl font-bold text-zephyr-900 mb-8">How it works</h2>
     <ol class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <li class="bg-white border border-zephyr-100 rounded-lg p-6">
-        <span class="text-3xl font-mono font-bold text-zephyr-500">01</span>
-        <p class="mt-2 font-medium text-zephyr-900">Paste your URL</p>
-        <p class="text-sm text-zephyr-700">
-          Any commerce store — Shopify, Hydrogen, custom storefront.
-        </p>
-      </li>
-      <li class="bg-white border border-zephyr-100 rounded-lg p-6">
-        <span class="text-3xl font-mono font-bold text-zephyr-500">02</span>
-        <p class="mt-2 font-medium text-zephyr-900">15 checks, 5 categories</p>
-        <p class="text-sm text-zephyr-700">
-          Discoverability, content, commerce protocols, product data, and checkout.
-        </p>
-      </li>
-      <li class="bg-white border border-zephyr-100 rounded-lg p-6">
-        <span class="text-3xl font-mono font-bold text-zephyr-500">03</span>
-        <p class="mt-2 font-medium text-zephyr-900">Get a fix-it list</p>
-        <p class="text-sm text-zephyr-700">
-          Every failing check ships with a remediation hint.
-        </p>
-      </li>
+      {
+        steps.map((s, i) => (
+          <li class="group relative rounded-xl border border-zephyr-100 bg-gradient-to-br from-brand-50/60 via-white to-white p-6 transition-all duration-200 hover:-translate-y-1 hover:border-brand-100 hover:shadow-lg hover:shadow-zephyr-900/5">
+            <div class="howto-card-grid pointer-events-none absolute inset-0 rounded-xl" aria-hidden="true" />
+            <span class="pointer-events-none absolute top-3 right-4 select-none font-mono text-6xl font-bold leading-none text-zephyr-100 transition-colors duration-200 group-hover:text-brand-100">
+              {s.num}
+            </span>
+            <span
+              class="relative inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-100 transition-transform duration-200 group-hover:scale-110"
+              set:html={s.icon}
+            />
+            <p class="relative mt-4 font-semibold text-zephyr-900">{s.title}</p>
+            <p class="relative mt-1 text-sm leading-snug text-zephyr-700">
+              {s.desc}
+            </p>
+            {i < steps.length - 1 && (
+              <span class="pointer-events-none absolute right-0 top-1/2 z-10 hidden -translate-y-1/2 translate-x-1/2 md:flex">
+                <span class="flex h-9 w-9 items-center justify-center rounded-full border border-brand-100 bg-white text-brand-600 shadow-md ring-4 ring-white">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                </span>
+              </span>
+            )}
+          </li>
+        ))
+      }
     </ol>
+    </div>
   </section>
 
   <!-- Developer CTA -->
-  <section class="bg-zephyr-900 text-white">
-    <div class="max-w-4xl mx-auto px-6 py-12 text-center">
-      <h2 class="text-2xl font-bold mb-3">Embed your score</h2>
-      <p class="text-zephyr-100 mb-4">
-        Drop a badge on your site. Open source — fork the scanner on GitHub.
-      </p>
-      <pre class="inline-block text-left text-xs sm:text-sm bg-zephyr-700 rounded p-4 overflow-x-auto font-mono"><code>{`<a href="https://isyourstoreagentready.com/scan/yourstore.com">
+  <section class="relative overflow-hidden bg-zephyr-900 text-white">
+    <div class="hero-grid-dark pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div
+      class="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-sky-500/15 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div class="relative max-w-6xl mx-auto px-6 py-16">
+      <div class="max-w-2xl mb-10">
+        <h2 class="text-2xl font-bold mb-2">Embed your score</h2>
+        <p class="text-zephyr-100/80">
+          Drop a live badge on your site — it re-grades on every scan. Open
+          source: fork the scanner on GitHub.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6 items-stretch">
+        <!-- Left: animated badge demo -->
+        <div class="embed-demo relative flex flex-col items-center justify-center overflow-hidden rounded-xl ring-1 ring-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-8 min-h-[280px]">
+          <div class="embed-demo-grid" aria-hidden="true"></div>
+          <div class="embed-float relative">
+            <div id="demo-badge" class="demo-badge" role="img" aria-label="agent ready: A 92">
+              <span class="db-label">agent ready</span>
+              <span id="db-value" class="db-value">
+                <span id="db-grade">A</span>&nbsp;<span id="db-score">92</span>
+              </span>
+              <span class="db-shine" aria-hidden="true"></span>
+            </div>
+          </div>
+          <p class="relative mt-7 text-sm text-zephyr-100/60">
+            Live SVG badge · grades A–F at a glance
+          </p>
+        </div>
+
+        <!-- Right: code window with copy -->
+        <div class="overflow-hidden rounded-xl ring-1 ring-white/10 bg-white/[0.04]">
+          <div class="flex items-center gap-2 border-b border-white/10 bg-white/[0.04] px-4 py-3">
+            <span class="h-3 w-3 rounded-full bg-[#ff5f56]" />
+            <span class="h-3 w-3 rounded-full bg-[#ffbd2e]" />
+            <span class="h-3 w-3 rounded-full bg-[#27c93f]" />
+            <span class="ml-2 font-mono text-xs text-zephyr-100/50">embed.html</span>
+            <button
+              id="embed-copy"
+              type="button"
+              data-copy={`<a href="https://isyourstoreagentready.com/scan/yourstore.com">
   <img src="https://isyourstoreagentready.com/badge/yourstore.com.svg"
        alt="Agent readiness" />
-</a>`}</code></pre>
+</a>`}
+              class="ml-auto inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-700"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span id="embed-copy-label">Copy</span>
+            </button>
+          </div>
+          <pre class="code-pre whitespace-pre-wrap break-all p-5 font-mono text-xs leading-relaxed sm:text-sm"><code><span class="text-zephyr-100/40">&lt;a</span> <span class="text-sky-300">href</span><span class="text-zephyr-100/40">=</span><span class="text-emerald-300">"https://isyourstoreagentready.com/scan/yourstore.com"</span><span class="text-zephyr-100/40">&gt;</span>
+  <span class="text-zephyr-100/40">&lt;img</span> <span class="text-sky-300">src</span><span class="text-zephyr-100/40">=</span><span class="text-emerald-300">"https://isyourstoreagentready.com/badge/yourstore.com.svg"</span>
+       <span class="text-sky-300">alt</span><span class="text-zephyr-100/40">=</span><span class="text-emerald-300">"Agent readiness"</span> <span class="text-zephyr-100/40">/&gt;</span>
+<span class="text-zephyr-100/40">&lt;/a&gt;</span></code></pre>
+        </div>
+      </div>
     </div>
   </section>
+
+  <style>
+    .demo-badge {
+      position: relative;
+      display: inline-flex;
+      overflow: hidden;
+      border-radius: 6px;
+      font-family: theme("fontFamily.mono");
+      font-size: 20px;
+      line-height: 1;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    }
+    .db-label {
+      background: #1f2937;
+      color: #fff;
+      padding: 10px 16px;
+      letter-spacing: 0.02em;
+    }
+    .db-value {
+      background: var(--grade-color, #059669);
+      color: #fff;
+      padding: 10px 16px;
+      font-weight: 700;
+      transition: background-color 0.25s ease;
+      white-space: nowrap;
+    }
+    .db-shine {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        100deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.45) 50%,
+        transparent 70%
+      );
+      transform: translateX(-120%);
+      animation: db-sweep 3.2s ease-in-out infinite;
+    }
+    .embed-float {
+      animation: db-float 5s ease-in-out infinite;
+    }
+    .embed-demo-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+      -webkit-mask-image: radial-gradient(
+        ellipse at center,
+        #000 30%,
+        transparent 75%
+      );
+    }
+    @keyframes db-sweep {
+      0% {
+        transform: translateX(-120%);
+      }
+      55%,
+      100% {
+        transform: translateX(220%);
+      }
+    }
+    @keyframes db-float {
+      0%,
+      100% {
+        transform: translateY(-4px);
+      }
+      50% {
+        transform: translateY(4px);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .db-shine,
+      .embed-float {
+        animation: none;
+      }
+    }
+    .howto-dots {
+      background-image: radial-gradient(
+        rgba(100, 116, 139, 0.18) 1px,
+        transparent 1px
+      );
+      background-size: 22px 22px;
+      mask-image: radial-gradient(ellipse at center, #000 35%, transparent 85%);
+      -webkit-mask-image: radial-gradient(
+        ellipse at center,
+        #000 35%,
+        transparent 85%
+      );
+    }
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(36, 86, 216, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(36, 86, 216, 0.06) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(
+        ellipse 75% 60% at 50% 0%,
+        #000 35%,
+        transparent 80%
+      );
+      -webkit-mask-image: radial-gradient(
+        ellipse 75% 60% at 50% 0%,
+        #000 35%,
+        transparent 80%
+      );
+    }
+    .howto-card-grid {
+      background-image:
+        linear-gradient(rgba(36, 86, 216, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(36, 86, 216, 0.07) 1px, transparent 1px);
+      background-size: 22px 22px;
+      mask-image: radial-gradient(
+        ellipse at top left,
+        #000 0%,
+        transparent 70%
+      );
+      -webkit-mask-image: radial-gradient(
+        ellipse at top left,
+        #000 0%,
+        transparent 70%
+      );
+    }
+    .hero-grid-dark {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(
+        ellipse 75% 70% at 50% 0%,
+        #000 30%,
+        transparent 80%
+      );
+      -webkit-mask-image: radial-gradient(
+        ellipse 75% 70% at 50% 0%,
+        #000 30%,
+        transparent 80%
+      );
+    }
+  </style>
+
+  <script>
+    // Animated "grading" demo: score counts up and the badge color/grade
+    // shifts D → A, mirroring the real scoring thresholds.
+    const GRADES = [
+      { min: 90, grade: "A", color: "#059669" },
+      { min: 75, grade: "B", color: "#16a34a" },
+      { min: 60, grade: "C", color: "#ca8a04" },
+      { min: 40, grade: "D", color: "#ea580c" },
+      { min: 0, grade: "F", color: "#dc2626" },
+    ];
+    const scoreEl = document.getElementById("db-score");
+    const gradeEl = document.getElementById("db-grade");
+    const valueEl = document.getElementById("db-value");
+    const TARGET = 92;
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    function paint(score: number) {
+      const g = GRADES.find((x) => score >= x.min) ?? GRADES[GRADES.length - 1];
+      if (scoreEl) scoreEl.textContent = String(score);
+      if (gradeEl) gradeEl.textContent = g.grade;
+      if (valueEl) valueEl.style.setProperty("--grade-color", g.color);
+    }
+
+    function runCount() {
+      if (!scoreEl) return;
+      let score = 0;
+      paint(0);
+      const step = () => {
+        score = Math.min(TARGET, score + Math.ceil((TARGET - score) / 12) || 1);
+        paint(score);
+        if (score < TARGET) {
+          setTimeout(step, 55);
+        } else {
+          setTimeout(runCount, 3200); // pause on final grade, then replay
+        }
+      };
+      setTimeout(step, 600);
+    }
+
+    if (prefersReduced) {
+      paint(TARGET);
+    } else {
+      runCount();
+    }
+
+    // Robust copy: async Clipboard API with execCommand fallback + feedback.
+    const copyBtn = document.getElementById("embed-copy");
+    const copyLabel = document.getElementById("embed-copy-label");
+    function legacyCopy(text: string) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+    if (copyBtn && copyLabel) {
+      copyBtn.addEventListener("click", async () => {
+        const text = copyBtn.getAttribute("data-copy") ?? "";
+        let ok = false;
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            ok = true;
+          }
+        } catch {
+          ok = false;
+        }
+        if (!ok) ok = legacyCopy(text);
+        copyLabel.textContent = ok ? "Copied!" : "Press ⌘/Ctrl+C";
+        setTimeout(() => {
+          copyLabel.textContent = "Copy";
+        }, 2000);
+      });
+    }
+  </script>
 </Default>

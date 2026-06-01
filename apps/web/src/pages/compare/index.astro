@@ -1,5 +1,6 @@
 ---
 import Default from "../../layouts/Default.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
 
 const title = "Agent Ready vs other agent-readiness scanners — Compare";
 const description =
@@ -28,27 +29,46 @@ const comparisons = [
   ogUrl={canonical}
   canonical={canonical}
 >
-  <section class="max-w-3xl mx-auto px-6 py-16">
-    <h1 class="text-4xl font-bold tracking-tight text-zephyr-900 mb-4">
-      How Agent Ready compares
-    </h1>
-    <p class="text-lg text-zephyr-700 mb-10">
-      A few good agent-readiness scanners exist now. Agent Ready is the one built for
-      commerce depth — it scores agentic-commerce protocols, understands headless
-      Hydrogen storefronts, and re-checks over time instead of giving a one-shot
-      snapshot. Honest breakdowns below.
-    </p>
+  <section class="relative overflow-hidden border-b border-zephyr-100 bg-gradient-to-b from-brand-50/70 via-white to-white">
+    <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" aria-hidden="true"></div>
+    <div class="relative max-w-3xl mx-auto px-6 py-20 text-center">
+      <Eyebrow label="Honest comparisons" />
+      <h1 class="mt-6 text-4xl font-bold tracking-tight text-zephyr-900 mb-4">
+        How
+        <span class="bg-gradient-to-r from-brand-600 to-sky-500 bg-clip-text text-transparent">
+          Agent Ready
+        </span>
+        compares
+      </h1>
+      <p class="text-lg text-zephyr-700">
+        A few good agent-readiness scanners exist now. Agent Ready is the one
+        built for commerce depth — it scores agentic-commerce protocols,
+        understands headless Hydrogen storefronts, and re-checks over time
+        instead of giving a one-shot snapshot.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-12">
     <div class="space-y-4">
       {
         comparisons.map((c) => (
           <a
             href={c.href}
-            class="block border border-zephyr-100 rounded-lg bg-white p-6 hover:border-zephyr-300"
+            class="group flex items-start gap-4 rounded-xl border border-zephyr-100 bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:border-brand-100 hover:shadow-lg hover:shadow-zephyr-900/5"
           >
-            <h2 class="text-xl font-semibold text-zephyr-900 mb-1">
-              Agent Ready vs {c.name} →
-            </h2>
-            <p class="text-sm text-zephyr-700">{c.blurb}</p>
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-100 transition-transform duration-200 group-hover:scale-110">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M8 7h8m0 0-3-3m3 3-3 3M16 17H8m0 0 3 3m-3-3 3-3"/></svg>
+            </span>
+            <div class="min-w-0">
+              <h2 class="flex items-center gap-1 text-xl font-semibold text-zephyr-900">
+                Agent Ready vs {c.name}
+                <span class="text-brand-600 transition-transform duration-200 group-hover:translate-x-1">→</span>
+              </h2>
+              <p class="mt-1 text-sm text-zephyr-700">{c.blurb}</p>
+            </div>
           </a>
         ))
       }
