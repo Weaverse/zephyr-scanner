@@ -4,21 +4,30 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Neutral slate scale — text, borders, and surfaces.
         zephyr: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          500: "#0ea5e9",
-          600: "#0284c7",
-          700: "#0369a1",
-          900: "#0c4a6e",
+          50: "#f8fafc",
+          100: "#eef2f6",
+          200: "#dde3ea",
+          500: "#64748b",
+          600: "#475569",
+          700: "#334155",
+          900: "#0f172a",
+        },
+        // Brand accent — links, buttons, highlights.
+        brand: {
+          50: "#eff4ff",
+          100: "#dbe4ff",
+          500: "#3b6df6",
+          600: "#2456d8",
+          700: "#1d44b0",
         },
         grade: {
-          a: "#10b981",
-          b: "#22c55e",
-          c: "#eab308",
-          d: "#f97316",
-          f: "#ef4444",
+          a: "#059669",
+          b: "#16a34a",
+          c: "#ca8a04",
+          d: "#ea580c",
+          f: "#dc2626",
         },
       },
       fontFamily: {

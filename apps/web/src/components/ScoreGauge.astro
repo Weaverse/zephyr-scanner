@@ -11,35 +11,78 @@ const radius = 70;
 const circumference = 2 * Math.PI * radius;
 const offset = circumference - (score / 100) * circumference;
 const colorClass = gradeColor(grade);
+
+const gradeLabel: Record<Grade, string> = {
+  A: "Excellent",
+  B: "Good",
+  C: "Fair",
+  D: "Needs work",
+  F: "Critical",
+};
+const gradePill: Record<Grade, string> = {
+  A: "bg-grade-a/10 text-grade-a",
+  B: "bg-grade-b/10 text-grade-b",
+  C: "bg-grade-c/10 text-grade-c",
+  D: "bg-grade-d/10 text-grade-d",
+  F: "bg-grade-f/10 text-grade-f",
+};
 ---
 
 <div class="flex items-center justify-center">
-  <div class="relative w-56 h-56">
-    <svg width="224" height="224" viewBox="0 0 160 160" class="rotate-[-90deg]">
+  <div class="relative w-52 h-52">
+    <svg width="208" height="208" viewBox="0 0 160 160" class="-rotate-90">
       <circle
         cx="80"
         cy="80"
         r={radius}
-        stroke="#e0f2fe"
-        stroke-width="14"
+        class="text-zephyr-100"
+        stroke="currentColor"
+        stroke-width="12"
         fill="none"
       />
       <circle
         cx="80"
         cy="80"
         r={radius}
+        class={`gauge-arc ${colorClass}`}
         stroke="currentColor"
-        stroke-width="14"
+        stroke-width="12"
         fill="none"
         stroke-linecap="round"
-        class={colorClass}
         stroke-dasharray={circumference}
         stroke-dashoffset={offset}
+        style={`--gauge-circ:${circumference}px; --gauge-off:${offset}px`}
       />
     </svg>
     <div class="absolute inset-0 flex flex-col items-center justify-center">
-      <span class={`text-5xl font-bold ${colorClass}`}>{score}</span>
-      <span class={`text-2xl font-mono font-semibold ${colorClass}`}>{grade}</span>
+      <span class="text-6xl font-bold leading-none text-zephyr-900">{score}</span>
+      <span class="mt-1.5 text-xs font-medium text-zephyr-500">out of 100</span>
+      <span
+        class={`mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${gradePill[grade]}`}
+      >
+        <span class="font-mono">{grade}</span>
+        <span class="opacity-40">·</span>
+        {gradeLabel[grade]}
+      </span>
     </div>
   </div>
 </div>
+
+<style>
+  .gauge-arc {
+    animation: gauge-fill 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes gauge-fill {
+    from {
+      stroke-dashoffset: var(--gauge-circ);
+    }
+    to {
+      stroke-dashoffset: var(--gauge-off);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gauge-arc {
+      animation: none;
+    }
+  }
+</style>

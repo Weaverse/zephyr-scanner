@@ -47,26 +47,58 @@ export default function ScanInput() {
 
   return (
     <form onSubmit={submit} className="w-full max-w-2xl mx-auto">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input
-          type="text"
-          placeholder="https://yourstore.com"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="flex-1 px-4 py-3 rounded-lg border border-zephyr-200 bg-white text-base focus:outline-none focus:ring-2 focus:ring-zephyr-500 placeholder:text-zephyr-700/40"
-          aria-label="Store URL to scan"
-          autoComplete="url"
+      <div className="group relative">
+        {/* Animated gradient glow halo to draw the eye. */}
+        <div
+          aria-hidden="true"
+          className="scan-glow absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-brand-500 via-sky-400 to-brand-500 opacity-40 blur-xl"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-3 rounded-lg bg-zephyr-600 text-white font-medium hover:bg-zephyr-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-        >
-          {loading ? "Scanning…" : "Scan now →"}
-        </button>
+        <div className="relative flex flex-col gap-2 rounded-xl bg-white p-1.5 shadow-xl shadow-brand-600/10 ring-1 ring-zephyr-200 transition group-focus-within:ring-2 group-focus-within:ring-brand-500 sm:flex-row">
+          <div className="relative flex-1">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-500">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.7}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="https://yourstore.com"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="w-full rounded-lg bg-transparent py-2.5 pl-11 pr-4 text-base text-zephyr-900 focus:outline-none placeholder:text-zephyr-700/40"
+              aria-label="Store URL to scan"
+              autoComplete="url"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="group/btn inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-base font-semibold text-white shadow-lg shadow-brand-600/30 transition-all hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/40 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? (
+              "Scanning…"
+            ) : (
+              <>
+                Scan now
+                <span className="transition-transform duration-200 group-hover/btn:translate-x-1">
+                  →
+                </span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
       {error && (
-        <p className="mt-2 text-sm text-grade-f" role="alert">
+        <p className="mt-3 text-sm font-medium text-grade-f" role="alert">
           {error}
         </p>
       )}

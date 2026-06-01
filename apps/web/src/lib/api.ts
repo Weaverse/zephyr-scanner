@@ -143,3 +143,13 @@ export const CATEGORY_LABELS: Record<CheckCategory, string> = {
   "product-data": "Product Data",
   checkout: "Checkout",
 };
+
+// Canonical display order for categories, shared by the category breakdown
+// bars and the per-category check results so the two stay in sync.
+export const CATEGORY_ORDER: CheckCategory[] = [
+  "commerce",
+  "product-data",
+  "checkout",
+  "discoverability",
+  "content",
+];

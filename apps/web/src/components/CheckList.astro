@@ -1,17 +1,48 @@
 ---
-import { CATEGORY_LABELS, type CheckResult } from "../lib/api";
+import {
+  CATEGORY_LABELS,
+  CATEGORY_ORDER,
+  type CategoryScore,
+  type CheckResult,
+} from "../lib/api";
 
 interface Props {
   results: CheckResult[];
+  categories?: CategoryScore[];
 }
 
-const { results } = Astro.props;
+const { results, categories = [] } = Astro.props;
 const grouped = new Map<string, CheckResult[]>();
 for (const r of results) {
   const list = grouped.get(r.category) ?? [];
   list.push(r);
   grouped.set(r.category, list);
 }
+
+const scoreByCategory = new Map(categories.map((c) => [c.category, c]));
+
+// Tinted pill background for a 0–100 score.
+function scoreBadgeClass(score: number): string {
+  if (score >= 75) return "bg-grade-a/10 text-grade-a";
+  if (score >= 60) return "bg-grade-c/10 text-grade-c";
+  if (score >= 40) return "bg-grade-d/10 text-grade-d";
+  return "bg-grade-f/10 text-grade-f";
+}
+
+// Text color for a per-check 0–100 score.
+function scoreTextClass(score: number): string {
+  if (score >= 75) return "text-grade-a";
+  if (score >= 60) return "text-grade-c";
+  if (score >= 40) return "text-grade-d";
+  return "text-grade-f";
+}
+
+// Render category sections in the same canonical order as the breakdown bars.
+const orderedGroups = [...grouped.entries()].sort(
+  (a, b) =>
+    CATEGORY_ORDER.indexOf(a[0] as CheckResult["category"]) -
+    CATEGORY_ORDER.indexOf(b[0] as CheckResult["category"]),
+);
 
 function severityLabel(s: CheckResult["severity"]): string {
   switch (s) {
@@ -31,32 +62,78 @@ function statusClass(r: CheckResult): string {
 }
 ---
 
-<div class="space-y-8">
+<div class="space-y-6">
   {
-    [...grouped.entries()].map(([category, items]) => (
-      <section>
-        <h3 class="text-lg font-semibold text-zephyr-900 mb-3">
-          {CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}
-        </h3>
-        <ul class="space-y-2">
+    orderedGroups.map(([category, items]) => {
+      const summary = scoreByCategory.get(category as CheckResult["category"]);
+      return (
+      <details class="group/cat overflow-hidden rounded-xl border border-zephyr-100 bg-white shadow-sm">
+        <summary class="flex cursor-pointer list-none select-none items-center justify-between gap-3 bg-zephyr-50/60 px-5 py-4 transition-colors hover:bg-zephyr-50 [&::-webkit-details-marker]:hidden">
+          <div class="flex items-center gap-3">
+            <h3 class="text-lg font-bold tracking-tight text-zephyr-900">
+              {CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}
+            </h3>
+            {summary && (
+              <span
+                class={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-sm font-bold ${scoreBadgeClass(summary.score)}`}
+              >
+                {summary.score}
+              </span>
+            )}
+          </div>
+          <div class="flex items-center gap-2.5 whitespace-nowrap">
+            {summary && (
+              <span class="hidden text-sm font-medium text-zephyr-700 sm:inline">
+                {summary.passed}/{summary.total} passed
+              </span>
+            )}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-5 w-5 text-zephyr-400 transition-transform duration-200 group-open/cat:rotate-180"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
+        </summary>
+        <ul class="divide-y divide-zephyr-100 border-t border-zephyr-100">
           {items.map((r) => (
-            <li class="border border-zephyr-100 rounded-lg bg-white">
-              <details open={!r.passed}>
-                <summary class="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer select-none">
+            <li>
+              <details class="group/check">
+                <summary class="flex items-center justify-between gap-3 px-5 py-3.5 cursor-pointer list-none select-none transition-colors hover:bg-zephyr-50/60 [&::-webkit-details-marker]:hidden">
                   <span class="flex items-center gap-3">
                     <span
-                      class={`text-xs font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${statusClass(r)}`}
+                      class={`inline-flex items-center text-xs font-bold uppercase tracking-wide rounded-full px-2.5 py-1 ${statusClass(r)}`}
                     >
                       {r.passed ? "Pass" : "Fix"}
                     </span>
-                    <span class="font-medium text-zephyr-900">{r.name}</span>
-                    <span class="text-xs text-zephyr-700">
+                    <span class="font-semibold text-zephyr-900">{r.name}</span>
+                    <span class="hidden sm:inline text-xs font-medium text-zephyr-500">
                       {severityLabel(r.severity)}
                     </span>
                   </span>
-                  <span class="text-sm font-mono text-zephyr-700">{r.score}/100</span>
+                  <span class="flex items-center gap-3">
+                    <span class={`text-sm font-mono font-bold ${scoreTextClass(r.score)}`}>
+                      {r.score}<span class="text-zephyr-400 font-normal">/100</span>
+                    </span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-4 w-4 text-zephyr-400 transition-transform duration-200 group-open/check:rotate-180"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </span>
                 </summary>
-                <div class="px-4 pb-4 text-sm text-zephyr-900 space-y-3">
+                <div class="px-5 pb-4 text-sm text-zephyr-900 space-y-3">
                   <p>{r.detail}</p>
                   {r.fixHint && (
                     <p class="border-l-4 border-grade-c pl-3 text-zephyr-700">
@@ -78,7 +155,8 @@ function statusClass(r: CheckResult): string {
             </li>
           ))}
         </ul>
-      </section>
-    ))
+      </details>
+      );
+    })
   }
 </div>

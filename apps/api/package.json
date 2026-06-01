@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply zephyr --local",
+    "db:seed:local": "wrangler d1 execute zephyr --local --file scripts/seed-local.sql",
+    "db:setup:local": "pnpm db:migrate:local && pnpm db:seed:local",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "build": "tsc -p tsconfig.json --noEmit"

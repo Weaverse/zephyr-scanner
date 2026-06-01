@@ -1,9 +1,25 @@
 ---
 import Default from "../layouts/Default.astro";
+import Eyebrow from "../components/Eyebrow.astro";
 import LeaderboardFilter from "../components/LeaderboardFilter";
-import { fetchLeaderboard, gradeColor } from "../lib/api";
+import { fetchLeaderboard } from "../lib/api";
 
 export const prerender = false;
+
+const gradeBadge: Record<string, string> = {
+  A: "bg-grade-a/10 text-grade-a",
+  B: "bg-grade-b/10 text-grade-b",
+  C: "bg-grade-c/10 text-grade-c",
+  D: "bg-grade-d/10 text-grade-d",
+  F: "bg-grade-f/10 text-grade-f",
+};
+
+function rankBadge(rank: number): string {
+  if (rank === 1) return "bg-amber-100 text-amber-700 ring-amber-200";
+  if (rank === 2) return "bg-zephyr-100 text-zephyr-600 ring-zephyr-200";
+  if (rank === 3) return "bg-orange-100 text-orange-700 ring-orange-200";
+  return "bg-zephyr-50 text-zephyr-500 ring-zephyr-100";
+}
 
 const params = Astro.url.searchParams;
 const category = params.get("category") ?? "";
@@ -29,10 +45,25 @@ const errorMessage = !board
   ogUrl="https://isyourstoreagentready.com/leaderboard"
   ogImage="https://api.isyourstoreagentready.com/leaderboard/og.png"
 >
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <h1 class="text-3xl font-bold text-zephyr-900 mb-2">Leaderboard</h1>
-    <p class="text-zephyr-700 mb-6">Highest agent-readiness scores across the network.</p>
+  <section class="relative overflow-hidden border-b border-zephyr-100 bg-gradient-to-b from-brand-50/70 via-white to-white">
+    <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" aria-hidden="true"></div>
+    <div class="relative max-w-4xl mx-auto px-6 py-16 text-center">
+      <Eyebrow label="Live ranking" />
+      <h1 class="mt-6 text-4xl font-bold tracking-tight text-zephyr-900 mb-3">
+        Agent-readiness
+        <span class="bg-gradient-to-r from-brand-600 to-sky-500 bg-clip-text text-transparent">
+          leaderboard
+        </span>
+      </h1>
+      <p class="text-lg text-zephyr-700">
+        The highest agent-readiness scores across the network.
+      </p>
+    </div>
+  </section>
 
+  <div class="max-w-4xl mx-auto px-6 py-12">
     <LeaderboardFilter
       client:load
       initialCategory={category}
@@ -49,46 +80,59 @@ const errorMessage = !board
 
     {
       entries.length === 0 && !errorMessage && (
-        <p class="text-zephyr-700 text-sm">
-          No scans recorded yet for this filter. Be the first — scan your store
-          from the <a href="/" class="underline">homepage</a>.
-        </p>
+        <div class="rounded-xl border border-dashed border-zephyr-200 bg-white p-10 text-center">
+          <p class="text-zephyr-700 text-sm">
+            No scans recorded yet for this filter. Be the first — scan your store
+            from the <a href="/" class="font-medium text-brand-600 underline">homepage</a>.
+          </p>
+        </div>
       )
     }
 
     {
       entries.length > 0 && (
-        <table class="w-full border border-zephyr-100 rounded-lg overflow-hidden bg-white">
-          <thead class="bg-zephyr-50 text-left text-sm text-zephyr-700">
-            <tr>
-              <th class="px-4 py-2 w-16">Rank</th>
-              <th class="px-4 py-2">Domain</th>
-              <th class="px-4 py-2 w-32">Score</th>
-              <th class="px-4 py-2 w-48">Scanned</th>
-            </tr>
-          </thead>
-          <tbody class="text-sm divide-y divide-zephyr-100">
-            {entries.map((e) => (
+        <div class="overflow-hidden rounded-xl border border-zephyr-100 bg-white shadow-sm">
+          <table class="w-full">
+            <thead class="border-b border-zephyr-100 bg-zephyr-50 text-left text-xs font-semibold uppercase tracking-wide text-zephyr-500">
               <tr>
-                <td class="px-4 py-3 font-mono text-zephyr-700">#{e.rank}</td>
-                <td class="px-4 py-3">
-                  <a
-                    href={`/scan/${e.domain}`}
-                    class="text-zephyr-700 hover:text-zephyr-500"
-                  >
-                    {e.domain}
-                  </a>
-                </td>
-                <td class={`px-4 py-3 font-mono font-bold ${gradeColor(e.grade)}`}>
-                  {e.grade} {e.score}
-                </td>
-                <td class="px-4 py-3 text-zephyr-700">
-                  {new Date(e.scannedAt).toLocaleDateString()}
-                </td>
+                <th class="px-4 py-3 w-20">Rank</th>
+                <th class="px-4 py-3">Domain</th>
+                <th class="px-4 py-3 w-28">Score</th>
+                <th class="px-4 py-3 w-40">Scanned</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-zephyr-100 text-sm">
+              {entries.map((e) => (
+                <tr class="group transition-colors hover:bg-brand-50/30">
+                  <td class="px-4 py-3">
+                    <span class={`inline-flex h-8 w-8 items-center justify-center rounded-full font-mono text-sm font-bold ring-1 ring-inset ${rankBadge(e.rank)}`}>
+                      {e.rank}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <a
+                      href={`/scan/${e.domain}`}
+                      class="font-medium text-zephyr-900 transition-colors group-hover:text-brand-600"
+                    >
+                      {e.domain}
+                    </a>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-2">
+                      <span class={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-bold ${gradeBadge[e.grade] ?? "bg-zephyr-100 text-zephyr-700"}`}>
+                        {e.grade}
+                      </span>
+                      <span class="font-mono font-semibold text-zephyr-900">{e.score}</span>
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-zephyr-700">
+                    {new Date(e.scannedAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )
     }
   </div>
